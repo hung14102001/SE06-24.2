@@ -1,0 +1,1 @@
+Tìm hiểu về blockchain và code một app kết nối với sàn giao dịch
