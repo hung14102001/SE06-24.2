@@ -11,6 +11,58 @@ const style3 = {backgroundColor: 'rgb(255, 70, 85)'};
 const style4 = {transform: 'translate(0px)'};
 
 
+const network = "https://devnet.solana.com";
+const connection = new Connection(network);
+
+const getProvider = () => {
+  if ("solana" in window) {
+    const provider = window.solana;
+    if (provider.isPhantom) {
+      return provider;
+    }
+  }
+  window.open("https://phantom.app/", "_blank");
+};
+
+
+const connectAccount = async () => {
+
+    const provider = getProvider();
+
+    try {
+        const resp = await provider.connect();
+        console.log(resp.publicKey.toString());
+    } catch (err) {
+        console.log(err)
+    }
+
+}
+
+const getAddress = () => {
+    try {
+        console.log("add")
+        const add = window.solana.publicKey.toString()
+        console.log(window.solana.publicKey.toString())
+        return add;
+    }
+    catch (err) {
+        console.log(err)
+    }
+
+    return "CONNECT WALLET"
+}
+
+const disconnectAccount = () => {
+    console.log("h");
+    try {
+        window.solana.disconnect();
+        console.log("s")
+    }
+    catch (err) {
+        console.log(err)
+    }
+    window.solana.on('disconnect', () => console.log("disconnected!"))  
+}
 
 function Showroom() {
     return (
