@@ -1,6 +1,8 @@
 import math
 import os
-from ursina import Entity, held_keys, color
+from ursina import Entity, held_keys, color,camera
+# import camera
+
 class Player(Entity):
     def __init__(self, position_x, position_y):
         super().__init__(
@@ -26,3 +28,5 @@ class Player(Entity):
             self.y += self.speed
         if held_keys['down arrow'] or held_keys['s']:
             self.y -= self.speed
+        camera.x = self.x
+        camera.y = self.y
