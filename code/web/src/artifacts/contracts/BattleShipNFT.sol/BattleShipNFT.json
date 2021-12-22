@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "GunBarrelOwnerShip",
-  "sourceName": "contracts/GunBarrelOwnerShip.sol",
+  "contractName": "BattleShipNFT",
+  "sourceName": "contracts/BattleShipNFT.sol",
   "abi": [
     {
       "anonymous": false,

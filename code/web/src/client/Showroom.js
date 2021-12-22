@@ -2,6 +2,7 @@ import './styles/showroom.css';
 import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
 import {useState} from 'react';
 import { ethers } from 'ethers';
+import { useHistory } from 'react-router-dom';
 import AztecToken from '../artifacts/contracts/AztecToken/AztecToken.sol/AztecToken.json';
 
 const tokenAddress = "0x75Cc9967fdD3340ad17034b4c0A4C8e47058D2f4"
@@ -19,19 +20,20 @@ function Showroom() {
 
     async function requestAccount() {
         window.ethereum.request({ method: 'eth_requestAccounts' })
-            .then((accounts)=> {
+            .then((accounts) => {
                 console.log('account: ',accounts[0])
-                setOwnerAccount(accounts[0])
+                setOwnerAccount(accounts[0].substring(0,4) + '...' + accounts[0].slice(-4))
                 fetchOwnerTokenAmount()
         });
     }
 
     async function fetchOwnerTokenAmount() {
         if (window.ethereum) {
+            const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const contract = new ethers.Contract(tokenAddress, AztecToken.abi, provider)
             try {
-                const data = await contract.balanceOf(ownerAccount)
+                const data = await contract.balanceOf(account)
                 setOwnerTokenAmount(parseInt(data['_hex'], 16))
             } catch (err) {
                 console.log(err)
@@ -40,6 +42,13 @@ function Showroom() {
 
     }
 
+    history = useHistory();
+    function goMarket() {
+        history.push("/marketplace");
+    }
+
+
+    requestAccount();
 
     return (
         <body>
