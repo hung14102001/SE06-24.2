@@ -1,8 +1,10 @@
 import './styles/showroom.css';
 import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
-import { Connection, SystemProgram, Transaction, clusterApiUrl } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
+import { ethers } from 'ethers';
+import AztecToken from '../artifacts/contracts/AztecToken/AztecToken.sol/AztecToken.json';
+
+const tokenAddress = "0x75Cc9967fdD3340ad17034b4c0A4C8e47058D2f4"
 
 const style1 = {outline: 'none'};
 const style2 = {margin: 'auto', marginTop:'10px'};
@@ -11,60 +13,34 @@ const style3 = {backgroundColor: 'rgb(255, 70, 85)'};
 const style4 = {transform: 'translate(0px)'};
 
 
-const network = "https://devnet.solana.com";
-const connection = new Connection(network);
-
-const getProvider = () => {
-  if ("solana" in window) {
-    const provider = window.solana;
-    if (provider.isPhantom) {
-      return provider;
-    }
-  }
-  window.open("https://phantom.app/", "_blank");
-};
-
-
-const connectAccount = async () => {
-
-    const provider = getProvider();
-
-    try {
-        const resp = await provider.connect();
-        console.log(resp.publicKey.toString());
-    } catch (err) {
-        console.log(err)
-    }
-
-}
-
-const getAddress = () => {
-    try {
-        console.log("add")
-        const add = window.solana.publicKey.toString()
-        console.log(window.solana.publicKey.toString())
-        return add;
-    }
-    catch (err) {
-        console.log(err)
-    }
-
-    return "CONNECT WALLET"
-}
-
-const disconnectAccount = () => {
-    console.log("h");
-    try {
-        window.solana.disconnect();
-        console.log("s")
-    }
-    catch (err) {
-        console.log(err)
-    }
-    window.solana.on('disconnect', () => console.log("disconnected!"))  
-}
-
 function Showroom() {
+    const [ownerTokenAmount, setOwnerTokenAmount] = useState('0');
+    const [ownerAccount, setOwnerAccount] = useState('Connect Wallet');
+
+    async function requestAccount() {
+        window.ethereum.request({ method: 'eth_requestAccounts' })
+            .then((accounts)=> {
+                console.log('account: ',accounts[0])
+                setOwnerAccount(accounts[0])
+                fetchOwnerTokenAmount()
+        });
+    }
+
+    async function fetchOwnerTokenAmount() {
+        if (window.ethereum) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum)
+            const contract = new ethers.Contract(tokenAddress, AztecToken.abi, provider)
+            try {
+                const data = await contract.balanceOf(ownerAccount)
+                setOwnerTokenAmount(parseInt(data['_hex'], 16))
+            } catch (err) {
+                console.log(err)
+            }
+        }
+
+    }
+
+
     return (
         <body>
             <div className="__gatsby">
@@ -76,7 +52,7 @@ function Showroom() {
                                     <div className="nav-left-content">
                                         <div className="nav-branding-switcher">
                                             <div className="nav-logo">
-                                                <svg onClick={disconnectAccount} width="32" height="32" style={style2} className="" viewBox="0 0 16 16">
+                                                <svg width="32" height="32" style={style2} className="" viewBox="0 0 16 16">
                                                     <title>globeIcon</title>
                                                     <path
                                                         d="M7.992 0C3.576 0 0 3.584 0 8s3.576 8 7.992 8C12.416 16 16 12.416 16 8s-3.584-8-8.008-8zm5.544 4.8h-2.36c-.256-1-.624-1.96-1.104-2.848A6.424 6.424 0 0113.536 4.8zM8 1.632A11.27 11.27 0 019.528 4.8H6.472A11.27 11.27 0 018 1.632zM1.808 9.6A6.594 6.594 0 011.6 8c0-.552.08-1.088.208-1.6h2.704A13.212 13.212 0 004.4 8c0 .544.048 1.072.112 1.6H1.808zm.656 1.6h2.36c.256 1 .624 1.96 1.104 2.848A6.39 6.39 0 012.464 11.2zm2.36-6.4h-2.36a6.39 6.39 0 013.464-2.848A12.52 12.52 0 004.824 4.8zM8 14.368A11.27 11.27 0 016.472 11.2h3.056A11.27 11.27 0 018 14.368zM9.872 9.6H6.128A11.77 11.77 0 016 8c0-.544.056-1.08.128-1.6h3.744C9.944 6.92 10 7.456 10 8s-.056 1.072-.128 1.6zm.2 4.448a12.52 12.52 0 001.104-2.848h2.36a6.424 6.424 0 01-3.464 2.848zM11.488 9.6c.064-.528.112-1.056.112-1.6s-.048-1.072-.112-1.6h2.704c.128.512.208 1.048.208 1.6s-.08 1.088-.208 1.6h-2.704z"
@@ -102,7 +78,7 @@ function Showroom() {
                                         </div>
                                         <div className="nav-link-wrapper">
                                             <div className="nav-link-container">
-                                                <a className="nav-link" href="#" onClick={disconnectAccount} >SHOWROOM</a>
+                                                <a className="nav-link" href="#" >SHOWROOM</a>
                                             </div>
                                             <div className="nav-link-container">
                                                 <a className="nav-link" href="./marketplace.html">MARKETPLACE</a>
@@ -125,8 +101,8 @@ function Showroom() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="nav-balance">2000
-                                            <span>TOKEN</span>
+                                        <div className="nav-balance">{ownerTokenAmount}
+                                            <span>{' '} AT</span>
                                         </div>
                                         <div className="navbar-mobile-reset">
                                             <div className="menu-icon">
@@ -152,7 +128,7 @@ function Showroom() {
                                                 <div className="nav-mobile-play-now">
                                                     <div className="nav-mobile-menu-anonymous-link">
                                                         <a className="nav-mobile-menu-link" href="">
-                                                            CONNECT WALLE
+                                                            CONNECT WALLET
                                                         </a>
                                                     </div>
                                                     <div className="nav-mobile-menu-link-list">
@@ -171,7 +147,7 @@ function Showroom() {
                                         </div>
                                         <div className="nav-account-container">
                                             <div className="nav-account-anonymous-link-wrapper">
-                                                <a href="#" onClick={connectAccount} style={style3}>{getAddress()}</a>
+                                                <a style={style3} onClick={requestAccount}>{ownerAccount}</a>
                                             </div>
                                         </div>
                                     </div>
@@ -197,7 +173,7 @@ function Showroom() {
                                 <div className="sr-token-balance">
                                     Balance:
                                     {' '} 
-                                    <span>0.000 Token</span>
+                                    <span>{ownerTokenAmount} Token</span>
                                 </div>
                             </div>
 
