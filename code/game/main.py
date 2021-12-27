@@ -1,24 +1,39 @@
+import os
+
 from re import A, escape
 from ursina import *
 from random import randint
-
-from ursina.camera import Camera
-from player import Player
 from cannonball import CannonBall
+from player import Player
+from sea import Sea, Plant
+from minimap import MiniMap
+# from network import Network
+from ursina.camera import Camera
+from enemy import Enemy
+
 # from ursina import texture
 
 # input
 def input(key):
     if key == 'esc':
         app.running = False
+    # move left if hold arrow left
 
     if mouse.left:
-        CannonBall(player.x, player.y, mouse.x, mouse.y)
+        # Audio('audios/shot.wav').play()
+        if time.time() - player.reload > 1:
+            player.reload = time.time()
+            CannonBall(player, mouse.x, mouse.y)
+    
 
+# display the background
 app = Ursina()
-player = Player(0,0)
-background = Entity(model='quad', scale_x=15, scale_y=10, texture='Sample.png', z = 0.01)
+player = Player(-15,-15)
+background = Sea()
 
-
+plant = Plant()
+minimap = MiniMap(player, background)
+# camera.z = -100
+Enemy(Vec2(5,5), '1111', '234', './Ships/ship_4.png')
 
 app.run()
