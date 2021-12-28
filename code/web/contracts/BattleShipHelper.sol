@@ -38,12 +38,10 @@ contract BattleShipHelper is BattleShipFactory {
         battleShips[_shipId].level = battleShips[_shipId].level.add(1);
     }
 
-    function changeName(uint256 _shipId, string memory _newName)
-        external
-        aboveLevel(10, _shipId)
-        onlyOwnerOf(_shipId)
-    {
-        battleShips[_shipId].name = _newName;
+    function shipURI(uint _shipId) external view returns(string memory) {
+        if (battleShips[_shipId].shipType == 1) return "";
+        if (battleShips[_shipId].shipType == 2) return "";
+        return "";
     }
 
     function getShipsByOwner(address _owner)

@@ -44,6 +44,10 @@ contract Marketplace is Ownable {
     function getListingPrice() public view returns (uint256) {
         return listingPrice;
     }
+
+    function getUnsoldItemCount() public view returns (uint32) {
+        return _itemIds - _itemsSold;
+    }
     
     /* Places an item for sale on the marketplace */
     function createMarketItem(

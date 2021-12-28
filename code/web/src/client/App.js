@@ -1,21 +1,26 @@
 import logo from './logo.svg';
 import './styles/App.css';
 
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+ 
 import Showroom from './Showroom';
-import Marketplace from './Marketplace';
+import MarketplacePage from './Marketplace';
+import Storage from './Storage';
 
 function App() {
   return (
-    <div className="App">
-      <Router>
-        <Switch>
-          <Route path="/" exact component={Showroom} />
-          <Route path="/marketplace" exact component={Marketplace} />
-          {/* <Route path="*" exact component={PageNotFound} /> */}
-        </Switch>
-      </Router>
+    <div>
+      {/* <Router>
+        <Routes> 
+          <Route path="/">
+            <Showroom />
+          </Route>
+          <Route path="/marketplace">
+            <Marketplace />
+          </Route>
+        </Routes>
+      </Router> */}
+      <Storage />
     </div>
   );
 }

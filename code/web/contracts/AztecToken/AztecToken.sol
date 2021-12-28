@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "../interfaces/IERC20.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract AztecToken is IERC20 {
     mapping(address => uint256) private _balances;
@@ -158,7 +159,7 @@ contract AztecToken is IERC20 {
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
         uint256 senderBalance = _balances[sender];
-        require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
+        require(senderBalance >= amount, Strings.toString(senderBalance));
         unchecked {
             _balances[sender] = senderBalance - amount;
         }
@@ -185,6 +186,9 @@ contract AztecToken is IERC20 {
         emit Transfer(address(0), account, amount);
 
     }
+    function burn(address sender, uint256 amount) external {
+        _burn(sender, amount);
+    }
 
     /**
      * @dev Destroys `amount` tokens from `account`, reducing the
@@ -201,7 +205,7 @@ contract AztecToken is IERC20 {
         require(account != address(0), "ERC20: burn from the zero address");
 
         uint256 accountBalance = _balances[account];
-        require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
+        require(accountBalance >= amount, toAsciiString(account));
         unchecked {
             _balances[account] = accountBalance - amount;
         }
@@ -209,6 +213,22 @@ contract AztecToken is IERC20 {
 
         emit Transfer(account, address(0), amount);
 
+    }
+    function toAsciiString(address x) internal pure returns (string memory) {
+        bytes memory s = new bytes(40);
+        for (uint i = 0; i < 20; i++) {
+            bytes1 b = bytes1(uint8(uint(uint160(x)) / (2**(8*(19 - i)))));
+            bytes1 hi = bytes1(uint8(b) / 16);
+            bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+            s[2*i] = char(hi);
+            s[2*i+1] = char(lo);            
+        }
+        return string(s);
+    }
+
+    function char(bytes1 b) internal pure returns (bytes1 c) {
+        if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
+        else return bytes1(uint8(b) + 0x57);
     }
 
     /**

@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "./BattleShipHelper.sol";
 import "./interfaces/IERC721.sol";
 
-abstract contract BattleShipNFT is BattleShipHelper, IERC721 {
+contract BattleShipNFT is BattleShipHelper, IERC721 {
 
     using SafeMath for uint256;
 
@@ -44,6 +44,8 @@ abstract contract BattleShipNFT is BattleShipHelper, IERC721 {
     }
 
     // function setApprovalForAll(address _operator, bool _approved) external;
-    // function getApproved(uint256 _tokenId) external view returns (address);
+    function getApproved(uint256 _tokenId) override external view returns (address) {
+        return shipAprrovals[_tokenId];
+    }
     // function isApprovedForAll(address _owner, address _operator) external view returns (bool);
 }

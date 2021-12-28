@@ -3,9 +3,6 @@
     padding: 0;
     box-sizing: border-box;
 }
-html {
-    -webkit-text-size-adjust: 100%;
-}
 body, html {
     font-size: 10px;
 }
@@ -76,19 +73,6 @@ ul {
     margin-left: 32px;
     width: 75px;
 }
-.__3GQ243GD {
-    width: 160px;
-    height: 160px;
-    position: absolute;
-    background: url(./images/fistsprite.png) 0 -2400px no-repeat;
-    transition: background-position .25s steps(15, end);
-    transform: scale(.33);
-    top: -55px;
-    left: -55px;
-}
-.__3GQ243GD:hover {
-    background-position: 0 0;
-}
 .nav-logo:hover svg path{
     fill: #f9f9f9;
 }
@@ -157,45 +141,13 @@ svg {
     transition: border-color .5s cubic-bezier(0.06, 0.81, 0, 0.98);
 }
 
-.dropdown {
-    background-color: #111;
-    position: absolute;
-    top: 80px;
-    left: 5px;
-    min-width: 200px;
-    text-align: left;
-    display: none;
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 1s, visibility 1s;
-}
-
-.dropdown li {
-    text-align: left;
-    border-bottom: 2px solid #111;
-    line-height: 4em;
-}
-.dropdown li a {
-    color: #e4e4e4;
-    padding: 12px 32px;
-    font-size: 12px;
-}
 .nav-link:hover {
     border-bottom: 2px solid rgb(255, 70, 85);
     
 }
-.nav-link:hover .dropdown {
-    display: inline-block;
-    visibility: visible;
-    opacity: 1;
-}
+
 .nav-link:hover svg path {
     fill: #f9f9f9;
-}
-._16evwnRjE {
-    margin-left: 4px;
-    margin-bottom: 1px;
-    display: inline-block;
 }
 .nav-right-content {
     display: flex;
@@ -611,10 +563,11 @@ svg {
     left: 0;
     position: relative;
     top: 0;
+    justify-content: left !important;
 }
 .slick-slide {
     padding: 0 1%;
-    flex-basis: 33%;
+    flex-basis: 33% !important;
     float: none;
     height: 100%;
 

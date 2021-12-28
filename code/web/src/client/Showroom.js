@@ -2,10 +2,12 @@ import './styles/showroom.css';
 import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
 import {useState} from 'react';
 import { ethers } from 'ethers';
-import { useHistory } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import AztecToken from '../artifacts/contracts/AztecToken/AztecToken.sol/AztecToken.json';
+import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
 
-const tokenAddress = "0x75Cc9967fdD3340ad17034b4c0A4C8e47058D2f4"
+const tokenAddress = "0x287DE3ba64fdE0cc6DCeD06Ec425012397219361"
+const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 
 const style1 = {outline: 'none'};
 const style2 = {margin: 'auto', marginTop:'10px'};
@@ -34,6 +36,7 @@ function Showroom() {
             const contract = new ethers.Contract(tokenAddress, AztecToken.abi, provider)
             try {
                 const data = await contract.balanceOf(account)
+                console.log(data['_hex'])
                 setOwnerTokenAmount(parseInt(data['_hex'], 16))
             } catch (err) {
                 console.log(err)
@@ -42,16 +45,20 @@ function Showroom() {
 
     }
 
-    history = useHistory();
-    function goMarket() {
-        history.push("/marketplace");
-    }
+    async function buyNewShip() {
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        const nftContract = new ethers.Contract(nftAddress, BattleShipNFT.abi, provider.getSigner())
+        let transaction = await nftContract.createRandomBattleShip(tokenAddress);
+        let txn = await transaction.wait()
+        let event = txn.event[0]
+        console.log(event)
 
+    }
 
     requestAccount();
 
     return (
-        <body>
+        <div>
             <div className="__gatsby">
                 <div style={style1} id="gatsby-focus-wrapper">
                     <header>
@@ -72,19 +79,6 @@ function Showroom() {
                                         <div className="__5DQWEsdWf"></div>
                                     </div>
                                     <div className="nav-mid-content">
-                                        
-                                        <div className="nav-mid-logo-outer">
-                                            <div className="nav-mid-logo">
-                                                <a href="#">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" height="35"
-                                                        viewBox="0 0 100 100" width="35">
-                                                        <path
-                                                            d="M99.25 48.66V10.28c0-.59-.75-.86-1.12-.39l-41.92 52.4a.627.627 0 00.49 1.02h30.29c.82 0 1.59-.37 2.1-1.01l9.57-11.96c.38-.48.59-1.07.59-1.68zM1.17 50.34L32.66 89.7c.51.64 1.28 1.01 2.1 1.01h30.29c.53 0 .82-.61.49-1.02L1.7 9.89c-.37-.46-1.12-.2-1.12.39v38.38c0 .61.21 1.2.59 1.68z"
-                                                            fill="#fff"></path>
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                        </div>
                                         <div className="nav-link-wrapper">
                                             <div className="nav-link-container">
                                                 <a className="nav-link" href="#" >SHOWROOM</a>
@@ -217,55 +211,7 @@ function Showroom() {
                                                                 <span className="card-category">dev track</span>
                                                             </div>
                                                             <h3 className="card-title">title</h3>
-                                                            <button className="home-hero-button" type="button">
-                                                                <div className="primary-button">
-                                                                    <span></span>
-                                                                    <span>
-                                                                        PLAY
-                                                                    </span>
-                                                                </div>
-                                                            </button>
-                                                            
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <div className="slick-slide">
-                                                <div>
-                                                    <a className="card">
-                                                        <picture className="card-banner-wrapper">
-                                                            <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
-                                                        </picture>
-                                                        <div className="card-tail">
-                                                            <div className="card-date-and-category-wrapper">
-                                                                <span className="card-category">dev track</span>
-                                                            </div>
-                                                            <h3 className="card-title">title</h3>
-                                                            <button className="home-hero-button" type="button">
-                                                                <div className="primary-button">
-                                                                    <span></span>
-                                                                    <span>
-                                                                        PLAY
-                                                                    </span>
-                                                                </div>
-                                                            </button>
-                                                            
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <div className="slick-slide">
-                                                <div>
-                                                    <a className="card">
-                                                        <picture className="card-banner-wrapper">
-                                                            <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
-                                                        </picture>
-                                                        <div className="card-tail">
-                                                            <div className="card-date-and-category-wrapper">
-                                                                <span className="card-category">dev track</span>
-                                                            </div>
-                                                            <h3 className="card-title">title</h3>
-                                                            <button className="home-hero-button" type="button">
+                                                            <button className="home-hero-button" type="button" onClick={buyNewShip}>
                                                                 <div className="primary-button">
                                                                     <span></span>
                                                                     <span>
@@ -313,7 +259,7 @@ function Showroom() {
                     });
                 });
             </script> */}
-        </body>
+        </div>
     )
 }
 

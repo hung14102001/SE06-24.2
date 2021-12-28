@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './client/styles/index.css';
-// import App from './client/App';
+import App from './client/App';
 import Showroom from './client/Showroom';
 import reportWebVitals from './client/reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Showroom />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );
