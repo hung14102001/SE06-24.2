@@ -1,5 +1,6 @@
-import './styles/marketplace.css';
 import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
+import Popup from './components/Popup';
+
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 // import axios from 'axios';
@@ -12,6 +13,7 @@ const marketAddress = "0x7611d076A48979Fefbf5B9C048910C61cB397a6e"
 const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 
 const style1 = {outline: 'none'};
+const style3 = {backgroundColor: 'rgb(255, 70, 85)'};
 const style4 = {transform: 'translate(0px)'};
 
 function MarketplacePage() {
@@ -79,7 +81,6 @@ function MarketplacePage() {
                     type: parseInt(ship.shipType["_hex"], 16),
                 //   image: meta.data.image,
                 }
-                console.log(item)
                 return item
             }))
             
@@ -97,7 +98,32 @@ function MarketplacePage() {
     let userItemRowCount = Math.ceil(userItems.length/3)
     let userItemRows = [...Array(userItemRowCount).keys()]
 
-    let liItems = userItems.map((item) => 
+    const [popup, setPopup] = useState(false)
+    const [ chosenItem, setChosenItem ] = useState( {
+        type: 0,
+        level: 0,
+        exp: 0,
+        hp: 0,
+        dmg: 0,
+    } )
+    
+    function setPopupTrue() {
+        setPopup(true)
+    }
+    function setPopupFalse() {
+        setPopup(false)
+    }
+    function _setChosenItem(type, level, exp, hp, dmg) {
+        setChosenItem({
+            type: type,
+            level: level,
+            exp: exp,
+            hp: hp,
+            dmg: dmg,
+        })
+    }
+
+    let indexItems = userItems.map((item) => 
         <div className="slick-slide" key={item.tokenId}>
             <div>
                 <a className="card">
@@ -111,7 +137,6 @@ function MarketplacePage() {
                         <h3 className="card-title">#{item.tokenId}</h3>
                         <div className="card-detail">
                             <div className="card-prop">
-
                                 <p>Type: {item.type}</p>
                                 <p>Level: {item.level}</p>
                                 <p>Exp: {item.exp}</p>
@@ -120,7 +145,7 @@ function MarketplacePage() {
                             </div>
                         </div>
                         <button className="home-hero-button" type="button">
-                            <div className="primary-button">
+                            <div className="primary-button" onClick={setPopupTrue}>
                                 <span></span>
                                 <span>
                                     SELL
@@ -133,9 +158,9 @@ function MarketplacePage() {
             </div>
         </div>
     )
-    let ulItems = userItemRows.map((row) => 
+    let rowItems = userItemRows.map((row) => 
         <div className='slick-track' key={row.toString()}>
-            {liItems}
+            {indexItems}
         </div>
     )
    
@@ -148,9 +173,9 @@ function MarketplacePage() {
                             <div className="sr-txt">                                
                                 <span>STORAGE</span>
                                 <h2>
-                                    <span>your {itemCount}</span>
+                                    <span>your</span>
                                     {' '}
-                                    <span>items</span>
+                                    <span>{itemCount} items</span>
                                 </h2>
                             </div>
                         </section>
@@ -165,8 +190,15 @@ function MarketplacePage() {
                             <div className="section-wrapper news-section-wrapper">
                                 <div className="slick-slider news-carousel">                                    
                                     <div className="slick-list">
-                                        {ulItems}
+                                        {rowItems}
                                     </div>
+                                    <Popup trigger={popup} setTrigger={setPopup}>
+                                    <div className="nav-account-container">
+                                        <div className="nav-account-anonymous-link-wrapper">
+                                            <a style={style3}>Confirm</a>
+                                        </div>
+                                    </div>
+                                    </Popup>
                                 </div>
                                 <div className="list-page">
                                     <ul>

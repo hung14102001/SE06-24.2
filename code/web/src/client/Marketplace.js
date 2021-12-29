@@ -1,4 +1,3 @@
-import './styles/marketplace.css';
 import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
 import {useState, useEffect} from 'react';
 import { ethers } from 'ethers';
@@ -9,9 +8,6 @@ const tokenAddress = "0x75Cc9967fdD3340ad17034b4c0A4C8e47058D2f4"
 const marketAddress = "0x7611d076A48979Fefbf5B9C048910C61cB397a6e"
 
 const style1 = {outline: 'none'};
-const style2 = {margin: 'auto', marginTop:'10px'};
-
-const style3 = {backgroundColor: 'rgb(255, 70, 85)'};
 const style4 = {transform: 'translate(0px)'};
 
 function MarketplacePage() {

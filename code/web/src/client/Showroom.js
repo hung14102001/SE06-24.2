@@ -1,4 +1,4 @@
-import './styles/showroom.css';
+
 import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
 import {useState} from 'react';
 import { ethers } from 'ethers';
@@ -10,9 +10,6 @@ const tokenAddress = "0x287DE3ba64fdE0cc6DCeD06Ec425012397219361"
 const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 
 const style1 = {outline: 'none'};
-const style2 = {margin: 'auto', marginTop:'10px'};
-
-const style3 = {backgroundColor: 'rgb(255, 70, 85)'};
 const style4 = {transform: 'translate(0px)'};
 
 
@@ -74,7 +71,7 @@ function Showroom() {
                                 <div className="sr-token-balance">
                                     Balance:
                                     {' '} 
-                                    <span>{ownerTokenAmount} Token</span>
+                                    <span>{ownerTokenAmount} AT</span>
                                 </div>
                             </div>
 
@@ -109,6 +106,7 @@ function Showroom() {
                                                                 <span className="card-category">dev track</span>
                                                             </div>
                                                             <h3 className="card-title">title</h3>
+                                                            <div className='card-detail'></div>
                                                             <button className="home-hero-button" type="button" onClick={buyNewShip}>
                                                                 <div className="primary-button">
                                                                     <span></span>
