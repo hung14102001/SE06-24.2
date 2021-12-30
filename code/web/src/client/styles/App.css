@@ -196,14 +196,21 @@ svg {
 }
 .nav-account-container {
   display: flex;
-  height: 80px;
   align-items: center;
   justify-content: center;
 }
 .nav-account-anonymous-link-wrapper {
   display: inline-block;
 }
+#nav-account-container {
+  height: 80px;
+}
+#nav-account {
+  margin: 20px 15px;
+}
 .nav-account-container a {
+  cursor: pointer;
+  background-color: rgb(255, 70, 85);
   padding: 12px 5px;
   border-radius: 2px;
   min-width: 129px;
@@ -212,7 +219,6 @@ svg {
   line-height: 16px;
   text-overflow: ellipsis;
   display: inline-block;
-  margin: 20px 15px;
   
   font-size: 12px;
   font-weight: 800;
@@ -671,6 +677,9 @@ svg {
   flex-basis: 30%;
   color: #e4e4e4;
 }
+#storage-card-prop {
+  flex-basis: 100%;
+}
 
 .list-page {
   display: flex;
@@ -728,7 +737,7 @@ svg {
   .nav-mid-content {
       justify-content: center;
   }
-  .nav-account-container {
+  #nav-account-container {
       display: none;
   }
   .navbar-mobile-reset {

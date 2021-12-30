@@ -100,6 +100,7 @@ function MarketplacePage() {
 
     const [popup, setPopup] = useState(false)
     const [ chosenItem, setChosenItem ] = useState( {
+        id: -1,
         type: 0,
         level: 0,
         exp: 0,
@@ -113,15 +114,15 @@ function MarketplacePage() {
     function setPopupFalse() {
         setPopup(false)
     }
-    function _setChosenItem(type, level, exp, hp, dmg) {
-        setChosenItem({
-            type: type,
-            level: level,
-            exp: exp,
-            hp: hp,
-            dmg: dmg,
-        })
-    }
+    // function _setChosenItem(type, level, exp, hp, dmg) {
+    //     setChosenItem({
+    //         type: type,
+    //         level: level,
+    //         exp: exp,
+    //         hp: hp,
+    //         dmg: dmg,
+    //     })
+    // }
 
     let indexItems = userItems.map((item) => 
         <div className="slick-slide" key={item.tokenId}>
@@ -136,7 +137,7 @@ function MarketplacePage() {
                         </div>
                         <h3 className="card-title">#{item.tokenId}</h3>
                         <div className="card-detail">
-                            <div className="card-prop">
+                            <div id='storage-card-prop' className="card-prop">
                                 <p>Type: {item.type}</p>
                                 <p>Level: {item.level}</p>
                                 <p>Exp: {item.exp}</p>
@@ -145,7 +146,8 @@ function MarketplacePage() {
                             </div>
                         </div>
                         <button className="home-hero-button" type="button">
-                            <div className="primary-button" onClick={setPopupTrue}>
+                            {/* onclick = setItem({level = item.level ...}) */}
+                            <div className="primary-button" onClick={setPopupTrue}> 
                                 <span></span>
                                 <span>
                                     SELL
@@ -193,11 +195,16 @@ function MarketplacePage() {
                                         {rowItems}
                                     </div>
                                     <Popup trigger={popup} setTrigger={setPopup}>
-                                    <div className="nav-account-container">
-                                        <div className="nav-account-anonymous-link-wrapper">
-                                            <a style={style3}>Confirm</a>
+                                        <div style={{marginBottom: '24px'}}>
+                                            <h3>ID-{chosenItem.id}</h3>
+                                            <h3>Type-{chosenItem.type}</h3>
+                                            <h3>level-{chosenItem.level}</h3>
                                         </div>
-                                    </div>
+                                        <div className="nav-account-container">
+                                            <div className="nav-account-anonymous-link-wrapper">
+                                                <a>Confirm</a>
+                                            </div>
+                                        </div>
                                     </Popup>
                                 </div>
                                 <div className="list-page">

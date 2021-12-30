@@ -15,7 +15,6 @@ const tokenAddress = "0x287DE3ba64fdE0cc6DCeD06Ec425012397219361"
 function App() {
 
   const style2 = {margin: 'auto', marginTop:'10px'};
-  const style3 = {backgroundColor: 'rgb(255, 70, 85)'};
 
   const [ownerTokenAmount, setOwnerTokenAmount] = useState('0');
   const [ownerAccount, setOwnerAccount] = useState('Connect Wallet');
@@ -142,9 +141,9 @@ function App() {
                                 </div>
                             </div>
                         </div>
-                        <div className="nav-account-container">
+                        <div id='nav-account-container' className="nav-account-container">
                             <div className="nav-account-anonymous-link-wrapper">
-                                <a style={style3} onClick={requestAccount}>{ownerAccount}</a>
+                                <a id='nav-account' onClick={requestAccount}>{ownerAccount}</a>
                             </div>
                         </div>
                     </div>
