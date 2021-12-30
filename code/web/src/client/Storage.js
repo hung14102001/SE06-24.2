@@ -4,51 +4,22 @@ import Popup from './components/Popup';
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 // import axios from 'axios';
-import AztecToken from '../artifacts/contracts/AztecToken/AztecToken.sol/AztecToken.json';
 import Marketplace from '../artifacts/contracts/Marketplace.sol/Marketplace.json';
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
 
-const tokenAddress = "0x287DE3ba64fdE0cc6DCeD06Ec425012397219361"
 const marketAddress = "0x7611d076A48979Fefbf5B9C048910C61cB397a6e"
 const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 
 const style1 = {outline: 'none'};
-const style3 = {backgroundColor: 'rgb(255, 70, 85)'};
 const style4 = {transform: 'translate(0px)'};
 
-function MarketplacePage() {
+function Storage(props) {
 
     const [pageOrder, setPageOrder] = useState(1);
     const [pageCount, setPageCount] = useState(1);
-
-    const [ownerTokenAmount, setOwnerTokenAmount] = useState('0');
-    const [ownerAccount, setOwnerAccount] = useState('Connect Wallet');
     
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const tokenContract = new ethers.Contract(tokenAddress, AztecToken.abi, provider);
     
-    async function requestAccount() {
-        window.ethereum.request({ method: 'eth_requestAccounts' })
-        .then((accounts) => {
-            console.log('account: ',accounts[0])
-            setOwnerAccount(accounts[0].substring(0,4) + '...' + accounts[0].slice(-4))
-            fetchOwnerTokenAmount()
-            getUserItemInfo()
-        });
-    }
-    
-    async function fetchOwnerTokenAmount() {
-        if (window.ethereum) {
-            const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
-            try {
-                const data = await tokenContract.balanceOf(account)
-                setOwnerTokenAmount(parseInt(data['_hex'], 16))
-            } catch (err) {
-                console.log(err)
-            }
-        }
-        
-    }
     const [ itemCount, setItemCount ] = useState(0);
     const [ userItems, setUserItems ] = useState([]);
     const [ userItemsSale, setUserItemsSale] = useState([]);
@@ -57,36 +28,37 @@ function MarketplacePage() {
     const nftContract = new ethers.Contract(nftAddress, BattleShipNFT.abi, provider);
     
     async function getUserItemInfo() {
-        try {
-            const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
-            let userShipIds = await nftContract.getShipsByOwner(account)
+        if (provider !== undefined) {
+            try {
+                let userShipIds = await nftContract.getShipsByOwner(props.userAccount)
+                
+                setItemCount(userShipIds.length)
+                
+                const userItemsForSale = await marketContract.fetchItemsCreated()
+                
+                setPageCount(Math.ceil(userShipIds/6))
+                setUserItemsSale(userItemsForSale)
             
-            setItemCount(userShipIds.length)
-            
-            const userItemsForSale = await marketContract.fetchItemsCreated()
-            
-            setPageCount(Math.ceil(userShipIds/6))
-            setUserItemsSale(userItemsForSale)
-        
-            const items = await Promise.all(userShipIds.map(async i => {
-                // const shipUri = await nftContract.shipURI(i)
-                const ship = await nftContract.battleShips(i)
-                // const meta = await axios.get(shipUri)
-                let item = {
-                    tokenId: parseInt(i, 16),
-                    level: ship.level,
-                    exp: parseInt(ship.exp["_hex"], 16),
-                    hp: parseInt(ship.health["_hex"], 16),
-                    dmg: parseInt(ship.damage["_hex"], 16),
-                    type: parseInt(ship.shipType["_hex"], 16),
-                //   image: meta.data.image,
-                }
-                return item
-            }))
-            
-            setUserItems(items)
-        } catch (err) {
-            console.log(err)
+                const items = await Promise.all(userShipIds.map(async i => {
+                    // const shipUri = await nftContract.shipURI(i)
+                    const ship = await nftContract.battleShips(i)
+                    // const meta = await axios.get(shipUri)
+                    let item = {
+                        tokenId: parseInt(i, 16),
+                        level: ship.level,
+                        exp: parseInt(ship.exp["_hex"], 16),
+                        hp: parseInt(ship.health["_hex"], 16),
+                        dmg: parseInt(ship.damage["_hex"], 16),
+                        type: parseInt(ship.shipType["_hex"], 16),
+                    //   image: meta.data.image,
+                    }
+                    return item
+                }))
+                
+                setUserItems(items)
+            } catch (err) {
+                console.log(err)
+            }
         }
 
     }
@@ -126,37 +98,35 @@ function MarketplacePage() {
 
     let indexItems = userItems.map((item) => 
         <div className="slick-slide" key={item.tokenId}>
-            <div>
-                <a className="card">
-                    <picture className="card-banner-wrapper">
-                        <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
-                    </picture>
-                    <div className="card-tail">
-                        <div className="card-date-and-category-wrapper">
-                            <span className="card-category">Wellington</span>
-                        </div>
-                        <h3 className="card-title">#{item.tokenId}</h3>
-                        <div className="card-detail">
-                            <div id='storage-card-prop' className="card-prop">
-                                <p>Type: {item.type}</p>
-                                <p>Level: {item.level}</p>
-                                <p>Exp: {item.exp}</p>
-                                <p>Health: {item.hp}</p>
-                                <p>Damage: {item.dmg}</p>
-                            </div>
-                        </div>
-                        <button className="home-hero-button" type="button">
-                            {/* onclick = setItem({level = item.level ...}) */}
-                            <div className="primary-button" onClick={setPopupTrue}> 
-                                <span></span>
-                                <span>
-                                    SELL
-                                </span>
-                            </div>
-                        </button>
-                        
+            <div className="card">
+                <picture className="card-banner-wrapper">
+                    <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
+                </picture>
+                <div className="card-tail">
+                    <div className="card-date-and-category-wrapper">
+                        <span className="card-category">Wellington</span>
                     </div>
-                </a>
+                    <h3 className="card-title">#{item.tokenId}</h3>
+                    <div className="card-detail">
+                        <div id='storage-card-prop' className="card-prop">
+                            <p>Type: {item.type}</p>
+                            <p>Level: {item.level}</p>
+                            <p>Exp: {item.exp}</p>
+                            <p>Health: {item.hp}</p>
+                            <p>Damage: {item.dmg}</p>
+                        </div>
+                    </div>
+                    <button className="home-hero-button" type="button">
+                        {/* onclick = setItem({level = item.level ...}) */}
+                        <div className="primary-button" onClick={setPopupTrue}> 
+                            <span></span>
+                            <span>
+                                SELL
+                            </span>
+                        </div>
+                    </button>
+                    
+                </div>
             </div>
         </div>
     )
@@ -234,4 +204,4 @@ function MarketplacePage() {
     )
 }
 
-export default MarketplacePage;
+export default Storage;

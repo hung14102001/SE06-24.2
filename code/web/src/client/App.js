@@ -16,8 +16,8 @@ function App() {
 
   const style2 = {margin: 'auto', marginTop:'10px'};
 
-  const [ownerTokenAmount, setOwnerTokenAmount] = useState('0');
-  const [ownerAccount, setOwnerAccount] = useState('Connect Wallet');
+  const [userTokenAmount, setOwnerTokenAmount] = useState('0');
+  const [userAccount, setOwnerAccount] = useState('Connect Wallet');
   
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const tokenContract = new ethers.Contract(tokenAddress, AztecToken.abi, provider);
@@ -26,7 +26,7 @@ function App() {
       window.ethereum.request({ method: 'eth_requestAccounts' })
       .then((accounts) => {
           console.log('account: ',accounts[0])
-          setOwnerAccount(accounts[0].substring(0,4) + '...' + accounts[0].slice(-4))
+          setOwnerAccount(accounts[0])
           fetchOwnerTokenAmount()
       });
   }
@@ -52,6 +52,10 @@ function App() {
   function closeMobleNavbar() {
       setNavbarState('')
   }
+
+  useEffect(() => {
+    requestAccount()
+  }, [])
 
   return (
     <Router>
@@ -103,7 +107,7 @@ function App() {
                                 </div>
                             </div>
                         </div>
-                        <div className="nav-balance">{ownerTokenAmount}
+                        <div className="nav-balance">{userTokenAmount}
                             {' '}
                             <span>AT</span>
                         </div>
@@ -143,7 +147,7 @@ function App() {
                         </div>
                         <div id='nav-account-container' className="nav-account-container">
                             <div className="nav-account-anonymous-link-wrapper">
-                                <a id='nav-account' onClick={requestAccount}>{ownerAccount}</a>
+                                <a id='nav-account' onClick={requestAccount}>{userAccount.substring(0,4) + '...' + userAccount.slice(-4)}</a>
                             </div>
                         </div>
                     </div>
@@ -153,9 +157,9 @@ function App() {
       </header>
 
         <Routes>
-          <Route exact path='/' element={<Showroom/>}/>
-          <Route exact path='/marketplace' element={<MarketplacePage/>}/>
-          <Route exact path='/storage' element={<Storage/>}/>
+          <Route exact path='/' element={<Showroom userAccount={userAccount} userTokenAmount={userTokenAmount}/>}/>
+          <Route exact path='/marketplace' element={<MarketplacePage userAccount={userAccount}/>}/>
+          <Route exact path='/storage' element={<Storage userAccount={userAccount}/>}/>
         </Routes>
       </div>
     </Router>

@@ -1,9 +1,6 @@
 
 import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
-import {useState} from 'react';
 import { ethers } from 'ethers';
-// import { useNavigate } from 'react-router-dom';
-import AztecToken from '../artifacts/contracts/AztecToken/AztecToken.sol/AztecToken.json';
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
 
 const tokenAddress = "0x287DE3ba64fdE0cc6DCeD06Ec425012397219361"
@@ -13,43 +10,20 @@ const style1 = {outline: 'none'};
 const style4 = {transform: 'translate(0px)'};
 
 
-function Showroom() {
+function Showroom(props) {
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const tokenContract = new ethers.Contract(tokenAddress, AztecToken.abi, provider);
-
-    const [ownerTokenAmount, setOwnerTokenAmount] = useState('0');
-    const [ownerAccount, setOwnerAccount] = useState('0');
-
-    async function requestAccount() {
-        const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
-        setOwnerAccount(account)
-        fetchOwnerTokenAmount()
-    }
-    
-    async function fetchOwnerTokenAmount() {
-        if (window.ethereum) {
-            try {
-                
-                const data = await tokenContract.balanceOf(ownerAccount)
-                setOwnerTokenAmount(parseInt(data['_hex'], 16))
-            } catch (err) {
-                console.log(err)
-            }
-        }   
-    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
 
     async function buyNewShip() {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const nftContract = new ethers.Contract(nftAddress, BattleShipNFT.abi, provider.getSigner())
-        let transaction = await nftContract.createRandomBattleShip(tokenAddress);
-        let txn = await transaction.wait()
-        let event = txn.event[0]
-        console.log(event)
+        if (provider !== undefined) {
+            const nftContract = new ethers.Contract(nftAddress, BattleShipNFT.abi, provider.getSigner())
+            let transaction = await nftContract.createRandomBattleShip(tokenAddress);
+            let txn = await transaction.wait()
+            let event = txn.event[0]
+            console.log(event)
 
+        }
     }
-
-    requestAccount();
 
     return (
         <div>
@@ -71,7 +45,7 @@ function Showroom() {
                                 <div className="sr-token-balance">
                                     Balance:
                                     {' '} 
-                                    <span>{ownerTokenAmount} AT</span>
+                                    <span>{props.userTokenAmount} AT</span>
                                 </div>
                             </div>
 
@@ -96,28 +70,26 @@ function Showroom() {
                                     <div className="slick-list">
                                         <div className="slick-track">
                                             <div className="slick-slide">
-                                                <div>
-                                                    <a className="card">
-                                                        <picture className="card-banner-wrapper">
-                                                            <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
-                                                        </picture>
-                                                        <div className="card-tail">
-                                                            <div className="card-date-and-category-wrapper">
-                                                                <span className="card-category">dev track</span>
-                                                            </div>
-                                                            <h3 className="card-title">title</h3>
-                                                            <div className='card-detail'></div>
-                                                            <button className="home-hero-button" type="button" onClick={buyNewShip}>
-                                                                <div className="primary-button">
-                                                                    <span></span>
-                                                                    <span>
-                                                                        PLAY
-                                                                    </span>
-                                                                </div>
-                                                            </button>
-                                                            
+                                                <div className="card">
+                                                    <picture className="card-banner-wrapper">
+                                                        <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
+                                                    </picture>
+                                                    <div className="card-tail">
+                                                        <div className="card-date-and-category-wrapper">
+                                                            <span className="card-category">dev track</span>
                                                         </div>
-                                                    </a>
+                                                        <h3 className="card-title">title</h3>
+                                                        <div className='card-detail'></div>
+                                                        <button className="home-hero-button" type="button" onClick={buyNewShip}>
+                                                            <div className="primary-button">
+                                                                <span></span>
+                                                                <span>
+                                                                    4000 AT
+                                                                </span>
+                                                            </div>
+                                                        </button>
+                                                        
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>   

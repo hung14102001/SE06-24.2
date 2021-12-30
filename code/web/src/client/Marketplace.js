@@ -1,10 +1,8 @@
 import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
 import {useState, useEffect} from 'react';
 import { ethers } from 'ethers';
-import AztecToken from '../artifacts/contracts/AztecToken/AztecToken.sol/AztecToken.json';
 import Marketplace from '../artifacts/contracts/Marketplace.sol/Marketplace.json';
 
-const tokenAddress = "0x75Cc9967fdD3340ad17034b4c0A4C8e47058D2f4"
 const marketAddress = "0x7611d076A48979Fefbf5B9C048910C61cB397a6e"
 
 const style1 = {outline: 'none'};
@@ -15,35 +13,14 @@ function MarketplacePage() {
     const [pageOrder, setPageOrder] = useState(1);
     const [pageCount, setPageCount] = useState(1);
 
-    const [ownerTokenAmount, setOwnerTokenAmount] = useState('0');
-    const [ownerAccount, setOwnerAccount] = useState('');
-    
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const tokenContract = new ethers.Contract(tokenAddress, AztecToken.abi, provider);
     
-    async function requestAccount() {
-        const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' })
-        setOwnerAccount(account)
-        fetchOwnerTokenAmount()
-    }
-    
-    async function fetchOwnerTokenAmount() {
-        if (window.ethereum) {
-            try {
-                const data = await tokenContract.balanceOf(ownerAccount)
-                setOwnerTokenAmount(parseInt(data['_hex'], 16))
-            } catch (err) {
-                console.log(err)
-            }
-        }
-        
-    }
     const [ itemCount, setItemCount ] = useState(0);
     const [ items, setItems ] = useState([])
     const marketContract = new ethers.Contract(marketAddress, Marketplace.abi, provider);
     
     async function getItemInfo() {
-        if (window.ethereum) {
+        if (provider) {
             try {
                 const data = await marketContract.getUnsoldItemCount();
                 const itemForSale = await marketContract.fetchMarketItems();
@@ -58,9 +35,7 @@ function MarketplacePage() {
 
     useEffect(() => {
         getItemInfo()
-    }, [])
-
-    
+    }, [])    
     
     return (
         <div>
@@ -97,35 +72,33 @@ function MarketplacePage() {
                                         
                                         <div className='slick-track'>
                                             <div className="slick-slide">
-                                                <div>
-                                                    <a className="card">
-                                                        <picture className="card-banner-wrapper">
-                                                            <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
-                                                        </picture>
-                                                        <div className="card-tail">
-                                                            <div className="card-date-and-category-wrapper">
-                                                                <span className="card-category">Wellington</span>
-                                                            </div>
-                                                            <h3 className="card-title">#666</h3>
-                                                            <div className="card-detail">
-                                                                <span>Seller:0xd...3j2</span>
-                                                                <div className="card-prop">
-                                                                    <p>HP: 100</p>
-                                                                    <p>HP: 100</p>
-                                                                    <p>HP: 100</p>
-                                                                </div>
-                                                            </div>
-                                                            <button className="home-hero-button" type="button">
-                                                                <div className="primary-button">
-                                                                    <span></span>
-                                                                    <span>
-                                                                        1000 TOKEN
-                                                                    </span>
-                                                                </div>
-                                                            </button>
-                                                            
+                                                <div className="card">
+                                                    <picture className="card-banner-wrapper">
+                                                        <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
+                                                    </picture>
+                                                    <div className="card-tail">
+                                                        <div className="card-date-and-category-wrapper">
+                                                            <span className="card-category">Wellington</span>
                                                         </div>
-                                                    </a>
+                                                        <h3 className="card-title">#666</h3>
+                                                        <div className="card-detail">
+                                                            <span><a>Seller:0xd...3j2</a></span>
+                                                            <div className="card-prop">
+                                                                <p>HP: 100</p>
+                                                                <p>HP: 100</p>
+                                                                <p>HP: 100</p>
+                                                            </div>
+                                                        </div>
+                                                        <button className="home-hero-button" type="button">
+                                                            <div className="primary-button">
+                                                                <span></span>
+                                                                <span>
+                                                                    1000 TOKEN
+                                                                </span>
+                                                            </div>
+                                                        </button>
+                                                        
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>  
