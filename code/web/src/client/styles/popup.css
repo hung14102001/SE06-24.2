@@ -20,6 +20,7 @@
 }
 
 .popup-inner {
+    border-radius: 2%;
     position: relative;
     padding: 32px;
     width: 100%;

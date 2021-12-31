@@ -567,13 +567,15 @@ svg {
 .slick-track {
   margin-bottom: 50px;
   display: flex;
+  flex-wrap: wrap;
+
   width: auto;
   left: 0;
   position: relative;
   top: 0;
-  justify-content: left !important;
 }
 .slick-slide {
+  margin-bottom: 2%;
   padding: 0 1%;
   flex-basis: 33% !important;
   float: none;

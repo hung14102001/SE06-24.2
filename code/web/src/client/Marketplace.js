@@ -101,6 +101,98 @@ function MarketplacePage() {
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div className="slick-slide">
+                                                <div className="card">
+                                                    <picture className="card-banner-wrapper">
+                                                        <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
+                                                    </picture>
+                                                    <div className="card-tail">
+                                                        <div className="card-date-and-category-wrapper">
+                                                            <span className="card-category">Wellington</span>
+                                                        </div>
+                                                        <h3 className="card-title">#666</h3>
+                                                        <div className="card-detail">
+                                                            <span><a>Seller:0xd...3j2</a></span>
+                                                            <div className="card-prop">
+                                                                <p>HP: 100</p>
+                                                                <p>HP: 100</p>
+                                                                <p>HP: 100</p>
+                                                            </div>
+                                                        </div>
+                                                        <button className="home-hero-button" type="button">
+                                                            <div className="primary-button">
+                                                                <span></span>
+                                                                <span>
+                                                                    1000 TOKEN
+                                                                </span>
+                                                            </div>
+                                                        </button>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="slick-slide">
+                                                <div className="card">
+                                                    <picture className="card-banner-wrapper">
+                                                        <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
+                                                    </picture>
+                                                    <div className="card-tail">
+                                                        <div className="card-date-and-category-wrapper">
+                                                            <span className="card-category">Wellington</span>
+                                                        </div>
+                                                        <h3 className="card-title">#666</h3>
+                                                        <div className="card-detail">
+                                                            <span><a>Seller:0xd...3j2</a></span>
+                                                            <div className="card-prop">
+                                                                <p>HP: 100</p>
+                                                                <p>HP: 100</p>
+                                                                <p>HP: 100</p>
+                                                            </div>
+                                                        </div>
+                                                        <button className="home-hero-button" type="button">
+                                                            <div className="primary-button">
+                                                                <span></span>
+                                                                <span>
+                                                                    1000 TOKEN
+                                                                </span>
+                                                            </div>
+                                                        </button>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>  
+                                        <div className='slick-track'>
+                                            <div className="slick-slide">
+                                                <div className="card">
+                                                    <picture className="card-banner-wrapper">
+                                                        <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
+                                                    </picture>
+                                                    <div className="card-tail">
+                                                        <div className="card-date-and-category-wrapper">
+                                                            <span className="card-category">Wellington</span>
+                                                        </div>
+                                                        <h3 className="card-title">#666</h3>
+                                                        <div className="card-detail">
+                                                            <span><a>Seller:0xd...3j2</a></span>
+                                                            <div className="card-prop">
+                                                                <p>HP: 100</p>
+                                                                <p>HP: 100</p>
+                                                                <p>HP: 100</p>
+                                                            </div>
+                                                        </div>
+                                                        <button className="home-hero-button" type="button">
+                                                            <div className="primary-button">
+                                                                <span></span>
+                                                                <span>
+                                                                    1000 TOKEN
+                                                                </span>
+                                                            </div>
+                                                        </button>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>  
                                     </div>
                                 </div>

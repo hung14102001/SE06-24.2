@@ -19,7 +19,7 @@ function Showroom(props) {
             const nftContract = new ethers.Contract(nftAddress, BattleShipNFT.abi, provider.getSigner())
             let transaction = await nftContract.createRandomBattleShip(tokenAddress);
             let txn = await transaction.wait()
-            let event = txn.event[0]
+            let event = txn.event
             console.log(event)
 
         }

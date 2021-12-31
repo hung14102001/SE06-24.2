@@ -31,7 +31,7 @@ function Storage(props) {
         if (provider !== undefined) {
             try {
                 let userShipIds = await nftContract.getShipsByOwner(props.userAccount)
-                
+
                 setItemCount(userShipIds.length)
                 
                 const userItemsForSale = await marketContract.fetchItemsCreated()
@@ -67,35 +67,34 @@ function Storage(props) {
         getUserItemInfo()
     }, [])
 
-    let userItemRowCount = Math.ceil(userItems.length/3)
-    let userItemRows = [...Array(userItemRowCount).keys()]
-
     const [popup, setPopup] = useState(false)
-    const [ chosenItem, setChosenItem ] = useState( {
+    const [ chosenItem, setChosenItem ] = useState({
         id: -1,
-        type: 0,
-        level: 0,
-        exp: 0,
-        hp: 0,
-        dmg: 0,
-    } )
-    
-    function setPopupTrue() {
-        setPopup(true)
-    }
-    function setPopupFalse() {
-        setPopup(false)
-    }
-    // function _setChosenItem(type, level, exp, hp, dmg) {
-    //     setChosenItem({
-    //         type: type,
-    //         level: level,
-    //         exp: exp,
-    //         hp: hp,
-    //         dmg: dmg,
-    //     })
-    // }
+        type: -1,
+        level: -1,
+        exp: -1,
+        hp: -1,
+        dmg: -1,
+    })
 
+    async function sellItem() {
+        try {
+
+            let listingPrice = await marketContract.getListingPrice()
+            listingPrice = listingPrice.toString()
+            console.log(typeof listingPrice)
+
+            const contract = new ethers.Contract(marketAddress, Marketplace.abi, provider.getSigner());
+
+            let transaction = await contract.createMarketItem(nftAddress, chosenItem.id, '999', { value: listingPrice })
+            let txn = transaction.wait()
+            let event = txn.event
+            console.log(event)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    
     let indexItems = userItems.map((item) => 
         <div className="slick-slide" key={item.tokenId}>
             <div className="card">
@@ -117,8 +116,17 @@ function Storage(props) {
                         </div>
                     </div>
                     <button className="home-hero-button" type="button">
-                        {/* onclick = setItem({level = item.level ...}) */}
-                        <div className="primary-button" onClick={setPopupTrue}> 
+                        <div className="primary-button" onClick={ () => {
+                            setChosenItem({
+                                id: item.tokenId,
+                                type: item.type,
+                                level: item.level,
+                                exp: item.exp,
+                                hp: item.hp,
+                                dmg: item.dmg,
+                            })
+                            setPopup(true)
+                        }}> 
                             <span></span>
                             <span>
                                 SELL
@@ -128,11 +136,6 @@ function Storage(props) {
                     
                 </div>
             </div>
-        </div>
-    )
-    let rowItems = userItemRows.map((row) => 
-        <div className='slick-track' key={row.toString()}>
-            {indexItems}
         </div>
     )
    
@@ -162,7 +165,9 @@ function Storage(props) {
                             <div className="section-wrapper news-section-wrapper">
                                 <div className="slick-slider news-carousel">                                    
                                     <div className="slick-list">
-                                        {rowItems}
+                                        <div className='slick-track'>
+                                            {indexItems}
+                                        </div>
                                     </div>
                                     <Popup trigger={popup} setTrigger={setPopup}>
                                         <div style={{marginBottom: '24px'}}>
@@ -172,7 +177,7 @@ function Storage(props) {
                                         </div>
                                         <div className="nav-account-container">
                                             <div className="nav-account-anonymous-link-wrapper">
-                                                <a>Confirm</a>
+                                                <a >Confirm</a>
                                             </div>
                                         </div>
                                     </Popup>
