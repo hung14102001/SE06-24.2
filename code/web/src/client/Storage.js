@@ -6,8 +6,9 @@ import { ethers } from 'ethers';
 // import axios from 'axios';
 import Marketplace from '../artifacts/contracts/Marketplace.sol/Marketplace.json';
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
+import Web3Modal from 'web3modal'
 
-const marketAddress = "0x7611d076A48979Fefbf5B9C048910C61cB397a6e"
+const marketAddress = "0x0Cc6F82771AeD6A6c0F5D82f045b592e81A6AE2A"
 const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 
 const style1 = {outline: 'none'};
@@ -24,7 +25,7 @@ function Storage(props) {
     const [ userItems, setUserItems ] = useState([]);
     const [ userItemsSale, setUserItemsSale] = useState([]);
 
-    const marketContract = new ethers.Contract(marketAddress, Marketplace.abi, provider);
+    const marketContract = new ethers.Contract(marketAddress, Marketplace.abi, provider.getSigner());
     const nftContract = new ethers.Contract(nftAddress, BattleShipNFT.abi, provider);
     
     async function getUserItemInfo() {
@@ -35,9 +36,28 @@ function Storage(props) {
                 setItemCount(userShipIds.length)
                 
                 const userItemsForSale = await marketContract.fetchItemsCreated()
+                console.log(userItemsForSale)
                 
                 setPageCount(Math.ceil(userShipIds/6))
-                setUserItemsSale(userItemsForSale)
+                
+                const saleItems = await Promise.all(userItemsForSale.map(async i => {
+                    // const shipUri = await nftContract.shipURI(i)
+                    const tokenId = parseInt(i.tokenId["_hex"], 16)
+                    const ship = await nftContract.battleShips(tokenId)
+                    // const meta = await axios.get(shipUri)
+                    let item = {
+                        seller: i.seller,
+                        price: parseInt(i.price["_hex"], 16),
+                        tokenId: tokenId,
+                        level: ship.level,
+                        type: parseInt(ship.shipType["_hex"], 16),
+                        hp: parseInt(ship.health["_hex"], 16),
+                        dmg: parseInt(ship.damage["_hex"], 16),
+                        //   image: meta.data.image,
+                    }
+                    return item
+                }))
+                setUserItemsSale(saleItems)
             
                 const items = await Promise.all(userShipIds.map(async i => {
                     // const shipUri = await nftContract.shipURI(i)
@@ -78,21 +98,21 @@ function Storage(props) {
     })
 
     async function sellItem() {
-        try {
+        const web3Modal = new Web3Modal()
+        const connection = await web3Modal.connect()
+        const pprovider = new ethers.providers.Web3Provider(connection)    
+        const signer = pprovider.getSigner()
+        
+        /* next, create the item */
+        let tokenId = chosenItem.id
+    
+        /* then list the item for sale on the marketplace */
+        let contract = new ethers.Contract(marketAddress, Marketplace.abi, signer)
+        let listingPrice = await contract.getListingPrice()
+        listingPrice = listingPrice.toString()
 
-            let listingPrice = await marketContract.getListingPrice()
-            listingPrice = listingPrice.toString()
-            console.log(typeof listingPrice)
-
-            const contract = new ethers.Contract(marketAddress, Marketplace.abi, provider.getSigner());
-
-            let transaction = await contract.createMarketItem(nftAddress, chosenItem.id, '999', { value: listingPrice })
-            let txn = transaction.wait()
-            let event = txn.event
-            console.log(event)
-        } catch (err) {
-            console.log(err)
-        }
+        let transaction = await contract.createMarketItem(nftAddress, tokenId, 10, { value: listingPrice })
+        await transaction.wait()
     }
     
     let indexItems = userItems.map((item) => 
@@ -138,6 +158,48 @@ function Storage(props) {
             </div>
         </div>
     )
+    let indexSaleItems = userItemsSale.map((item) => 
+        <div className="slick-slide" key={item.tokenId}>
+            <div className="card">
+                <picture className="card-banner-wrapper">
+                    <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
+                </picture>
+                <div className="card-tail">
+                    <div className="card-date-and-category-wrapper">
+                        <span className="card-category">Wellington</span>
+                    </div>
+                    <h3 className="card-title">#{item.tokenId}</h3>
+                    <div className="card-detail">
+                        <div id='storage-card-prop' className="card-prop">
+                            <p>Type: {item.type}</p>
+                            <p>Level: {item.level}</p>
+                            <p>Health: {item.hp}</p>
+                            <p>Damage: {item.dmg}</p>
+                        </div>
+                    </div>
+                    <button className="home-hero-button" type="button">
+                        <div className="primary-button" onClick={ () => {
+                            setChosenItem({
+                                id: item.tokenId,
+                                type: item.type,
+                                level: item.level,
+                                exp: item.exp,
+                                hp: item.hp,
+                                dmg: item.dmg,
+                            })
+                            setPopup(true)
+                        }}> 
+                            <span></span>
+                            <span>
+                                Cancel
+                            </span>
+                        </div>
+                    </button>
+                    
+                </div>
+            </div>
+        </div>
+    )
    
     return (
         <div>            
@@ -168,6 +230,10 @@ function Storage(props) {
                                         <div className='slick-track'>
                                             {indexItems}
                                         </div>
+                                        <h3>Item in the market</h3>
+                                        <div className='slick-track'>
+                                            {indexSaleItems}
+                                        </div>
                                     </div>
                                     <Popup trigger={popup} setTrigger={setPopup}>
                                         <div style={{marginBottom: '24px'}}>
@@ -177,7 +243,7 @@ function Storage(props) {
                                         </div>
                                         <div className="nav-account-container">
                                             <div className="nav-account-anonymous-link-wrapper">
-                                                <a >Confirm</a>
+                                                <a onClick={sellItem}>Confirm</a>
                                             </div>
                                         </div>
                                     </Popup>
