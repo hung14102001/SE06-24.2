@@ -6,6 +6,7 @@ import { ethers } from 'ethers';
 import Marketplace from '../artifacts/contracts/Marketplace.sol/Marketplace.json';
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
 
+const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
 const marketAddress = "0x0Cc6F82771AeD6A6c0F5D82f045b592e81A6AE2A"
 // const nftAddress = '0x54Ab0265b80699390d4E9C26404aEFF473Aa266C'
 const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
@@ -13,7 +14,7 @@ const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 const style1 = {outline: 'none'};
 const style4 = {transform: 'translate(0px)'};
 
-function MarketplacePage() {
+function MarketplacePage(props) {
 
     const [pageOrder, setPageOrder] = useState(1);
     const [pageCount, setPageCount] = useState(1);
@@ -41,11 +42,12 @@ function MarketplacePage() {
                     const ship = await nftContract.battleShips(tokenId)
                     // const meta = await axios.get(shipUri)
                     let item = {
+                        itemId: parseInt(i.itemId["_hex"], 16),
+                        tokenId: tokenId,
                         seller: i.seller,
                         price: parseInt(i.price["_hex"], 16),
-                        tokenId: tokenId,
-                        level: ship.level,
                         type: parseInt(ship.shipType["_hex"], 16),
+                        level: ship.level,
                         hp: parseInt(ship.health["_hex"], 16),
                         dmg: parseInt(ship.damage["_hex"], 16),
                     //   image: meta.data.image,
@@ -65,15 +67,8 @@ function MarketplacePage() {
     }, [])    
 
     const [popup, setPopup] = useState(false)
-    const [ chosenItem, setChosenItem ] = useState({
-        id: -1,
-        type: -1,
-        level: -1,
-        exp: -1,
-        hp: -1,
-        dmg: -1,
-    })
-
+    const [ chosenItem, setChosenItem ] = useState({})
+    
     let indexItems = marketItems.map((item) => 
         <div className="slick-slide" key={item.tokenId}>
             <div className="card">
@@ -97,17 +92,18 @@ function MarketplacePage() {
                     <button className="home-hero-button" type="button">
                         <div className="primary-button" onClick={ () => {
                             setChosenItem({
-                                id: item.tokenId,
+                                itemId: item.itemId,
+                                tokenId: item.tokenId,
+                                seller: item.seller,
                                 type: item.type,
                                 level: item.level,
-                                hp: item.hp,
-                                dmg: item.dmg,
+                                price: item.price,
                             })
                             setPopup(true)
                         }}> 
                             <span></span>
                             <span>
-                                {item.price}
+                                {item.price} AT
                             </span>
                         </div>
                     </button>
@@ -116,6 +112,15 @@ function MarketplacePage() {
             </div>
         </div>
     )
+    const [ itemPrice, setItemPrice ] = useState(0)
+    const [ priceNote, setPriceNote ] = useState('')
+
+    async function buyAnItem() {
+        if (props.userAccount == chosenItem.seller) setPriceNote('You cannot buy your own item') 
+        else {
+            await marketContract.createMarketSale(tokenAddress, nftAddress, chosenItem.itemId)
+        }
+    }
     
     return (
         <div>
@@ -154,13 +159,15 @@ function MarketplacePage() {
                                         </div>
                                         <Popup trigger={popup} setTrigger={setPopup}>
                                             <div style={{marginBottom: '24px'}}>
-                                                <h3>ID - {chosenItem.id}</h3>
+                                                <h1>Buy an item</h1>
+                                                <h3>ID - {chosenItem.tokenId}</h3>
                                                 <h3>Type - {chosenItem.type}</h3>
                                                 <h3>level - {chosenItem.level}</h3>
+                                                <h3>price - {chosenItem.price} AT</h3>
                                             </div>
                                             <div className="nav-account-container">
                                                 <div className="nav-account-anonymous-link-wrapper">
-                                                    <a>Confirm</a>
+                                                    <a onClick={buyAnItem}>Confirm</a>
                                                 </div>
                                             </div>
                                         </Popup>

@@ -1,26 +1,25 @@
 import './styles/App.css';
-
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import AztecToken from '../artifacts/contracts/AztecToken/AztecToken.sol/AztecToken.json';
-
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
- 
+
+import Popup from './components/Popup';
+import AztecToken from '../artifacts/contracts/AztecToken/AztecToken.sol/AztecToken.json';
 import Showroom from './Showroom';
 import MarketplacePage from './Marketplace';
 import Storage from './Storage';
 
-const tokenAddress = "0x287DE3ba64fdE0cc6DCeD06Ec425012397219361"
+const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
 
 function App() {
 
   const style2 = {margin: 'auto', marginTop:'10px'};
 
   const [userTokenAmount, setOwnerTokenAmount] = useState('0');
-  const [userAccount, setOwnerAccount] = useState('Connect Wallet');
+  const [userAccount, setOwnerAccount] = useState('0');
   
   const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const tokenContract = new ethers.Contract(tokenAddress, AztecToken.abi, provider);
+  const tokenContract = new ethers.Contract(tokenAddress, AztecToken.abi, provider.getSigner());
   
   async function requestAccount() {
       window.ethereum.request({ method: 'eth_requestAccounts' })
@@ -45,6 +44,9 @@ function App() {
   }
 
   const [ navbarState, setNavbarState ] = useState('')
+  const [ popup, setPopup ] = useState(false)
+  const [ coinExchangeAmount, setCoinExchangeAmount ] = useState(0)
+  const [ exchangeNote, setExchangeNote ] = useState('')
 
   function openMobileNavbar() {
       setNavbarState('mobile-visible')
@@ -56,6 +58,21 @@ function App() {
   useEffect(() => {
     requestAccount()
   }, [])
+
+  function convertAccount() {
+      if (userAccount != '0') return userAccount.substring(0,4) + '...' + userAccount.slice(-4)
+      return 'Connect Wallet'
+  }
+
+  async function exchangeCoin() {
+      if (coinExchangeAmount > 0 && coinExchangeAmount%10 == 0) {
+          const ethToAT = await tokenContract.getPrice()
+          await tokenContract.mint(coinExchangeAmount, {value: coinExchangeAmount*ethToAT})
+      }
+      else {
+        setExchangeNote('Amount need being divisible by 10')
+      }
+  }
 
   return (
     <Router>
@@ -97,7 +114,7 @@ function App() {
                     </div>
                     <div className="nav-right-content">
                         <div className="locale-switcher">
-                            <div className="locale-switcher-icon">
+                            <div className="locale-switcher-icon" onClick={() => { setPopup(true) }}>
                                 <div className="locale-switch-trigger">
                                     <svg width="14" height="14" className="" viewBox="0 0 16 16">
                                         <path
@@ -106,6 +123,22 @@ function App() {
                                     </svg>
                                 </div>
                             </div>
+                            <Popup trigger={popup} setTrigger={setPopup}>
+                                <div style={{marginBottom: '24px'}}>
+                                    <h3>Coin Exchange</h3>
+                                    <input
+                                        placeholder="Amount"
+                                        onChange={e => {setCoinExchangeAmount(e.target.value); setExchangeNote('')}}
+                                    />
+                                    <h3>{coinExchangeAmount*0.00001} ETH</h3>
+                                    <h3>{exchangeNote}</h3>
+                                </div>
+                                <div className="nav-account-container">
+                                    <div className="nav-account-anonymous-link-wrapper">
+                                        <a onClick={exchangeCoin}>Confirm</a>
+                                    </div>
+                                </div>
+                            </Popup>
                         </div>
                         <div className="nav-balance">{userTokenAmount}
                             {' '}
@@ -147,7 +180,7 @@ function App() {
                         </div>
                         <div id='nav-account-container' className="nav-account-container">
                             <div className="nav-account-anonymous-link-wrapper">
-                                <a id='nav-account' onClick={requestAccount}>{userAccount.substring(0,4) + '...' + userAccount.slice(-4)}</a>
+                                <a id='nav-account' onClick={requestAccount}>{convertAccount()}</a>
                             </div>
                         </div>
                     </div>

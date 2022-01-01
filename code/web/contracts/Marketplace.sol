@@ -99,11 +99,13 @@ contract Marketplace is Ownable {
     /* Transfers ownership of the item, as well as funds between parties */
     function createMarketSale(address tokenContract, address nftContract, uint256 itemId) public payable {
 
+        require(msg.sender != marketItems[itemId].seller, "You cannot buy your own item");
         uint price = marketItems[itemId].price;
         uint tokenId = marketItems[itemId].tokenId;
 
         uint256 balance = AztecToken(tokenContract).balanceOf(msg.sender);
-        require(balance >= price, "Please submit the asking price in order to complete the purchase");
+        require(balance < price, "Please submit the asking price in order to complete the purchase");
+
 
         // transfer aztect token from buyer to seller
         AztecToken(tokenContract).transfer(marketItems[itemId].seller, marketItems[itemId].price);

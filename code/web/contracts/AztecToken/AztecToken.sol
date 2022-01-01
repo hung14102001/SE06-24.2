@@ -14,6 +14,8 @@ contract AztecToken is IERC20 {
     string private _name;
     string private _symbol;
 
+    uint256 ethPerAT = 0.00001 ether;
+
     /**
      * @dev Sets the values for {name} and {symbol}.
      *
@@ -73,6 +75,10 @@ contract AztecToken is IERC20 {
      */
     function balanceOf(address account) public view virtual override returns (uint256) {
         return _balances[account];
+    }
+
+    function getPrice() public view virtual returns (uint256) {
+        return ethPerAT;
     }
 
     /**
@@ -167,6 +173,13 @@ contract AztecToken is IERC20 {
 
         emit Transfer(sender, recipient, amount);
 
+    }
+
+    function mint(uint256 amount) external payable virtual {
+        require(amount > 0 && amount%10 == 0, "require amount is divisible by 10");
+        uint256 price = amount*ethPerAT;
+        require(msg.value == price, "require corresponding value");
+        _mint(msg.sender, amount);
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
