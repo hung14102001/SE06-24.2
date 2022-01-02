@@ -104,11 +104,14 @@ contract Marketplace is Ownable {
         uint tokenId = marketItems[itemId].tokenId;
 
         uint256 balance = AztecToken(tokenContract).balanceOf(msg.sender);
-        require(balance < price, "Please submit the asking price in order to complete the purchase");
+        require(balance >= price, "Please submit the asking price in order to complete the purchase");
 
 
         // transfer aztect token from buyer to seller
-        AztecToken(tokenContract).transfer(marketItems[itemId].seller, marketItems[itemId].price);
+        AztecToken(tokenContract).transferFrom(msg.sender, 
+            marketItems[itemId].seller, 
+            marketItems[itemId].price
+        );
 
         // marketItems[itemId].seller.transfer(msg.value);
         // tranfer ownership from this contract to buyer

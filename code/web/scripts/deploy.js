@@ -15,9 +15,9 @@ async function main() {
 
   // We get the contract to deploy
 
-  // await deployMarketContract();
+  await deployMarketContract();
   // await deployNFTContract();
-  await deployTokenContract();
+  // await deployTokenContract();
 }
 
 async function deployTokenContract() {

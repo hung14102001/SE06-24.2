@@ -7,7 +7,7 @@ import Marketplace from '../artifacts/contracts/Marketplace.sol/Marketplace.json
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
 
 const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
-const marketAddress = "0x0Cc6F82771AeD6A6c0F5D82f045b592e81A6AE2A"
+const marketAddress = "0xA31429C01c175e0b2eD633d814984a181521D2F1"
 // const nftAddress = '0x54Ab0265b80699390d4E9C26404aEFF473Aa266C'
 const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 
@@ -100,6 +100,7 @@ function MarketplacePage(props) {
                                 price: item.price,
                             })
                             setPopup(true)
+                            setPriceNote('')
                         }}> 
                             <span></span>
                             <span>
@@ -112,13 +113,18 @@ function MarketplacePage(props) {
             </div>
         </div>
     )
-    const [ itemPrice, setItemPrice ] = useState(0)
     const [ priceNote, setPriceNote ] = useState('')
 
     async function buyAnItem() {
-        if (props.userAccount == chosenItem.seller) setPriceNote('You cannot buy your own item') 
+        if (props.userAccount == chosenItem.seller.toLowerCase()) setPriceNote('You cannot buy your own item') 
+        else if (props.userTokenAmount < chosenItem.price) setPriceNote('Insufficient asset')
         else {
-            await marketContract.createMarketSale(tokenAddress, nftAddress, chosenItem.itemId)
+            setPriceNote('Waiting for user signing transaction')
+            await marketContract.createMarketSale(
+                tokenAddress, 
+                nftAddress, 
+                chosenItem.itemId,
+            )
         }
     }
     
@@ -159,11 +165,13 @@ function MarketplacePage(props) {
                                         </div>
                                         <Popup trigger={popup} setTrigger={setPopup}>
                                             <div style={{marginBottom: '24px'}}>
-                                                <h1>Buy an item</h1>
-                                                <h3>ID - {chosenItem.tokenId}</h3>
-                                                <h3>Type - {chosenItem.type}</h3>
-                                                <h3>level - {chosenItem.level}</h3>
-                                                <h3>price - {chosenItem.price} AT</h3>
+                                                <h3>Buy an item</h3>
+                                                <p>ID - {chosenItem.tokenId}</p>
+                                                <p>Type - {chosenItem.type}</p>
+                                                <p>level - {chosenItem.level}</p>
+                                                <p>price - {chosenItem.price} AT</p>
+                                                <span>{priceNote}</span>
+                                                
                                             </div>
                                             <div className="nav-account-container">
                                                 <div className="nav-account-anonymous-link-wrapper">

@@ -8,7 +8,7 @@ import Marketplace from '../artifacts/contracts/Marketplace.sol/Marketplace.json
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
 import Web3Modal from 'web3modal'
 
-const marketAddress = "0x0Cc6F82771AeD6A6c0F5D82f045b592e81A6AE2A"
+const marketAddress = "0xA31429C01c175e0b2eD633d814984a181521D2F1"
 const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 
 const style1 = {outline: 'none'};
@@ -35,29 +35,29 @@ function Storage(props) {
 
                 setItemCount(userShipIds.length)
                 
-                const userItemsForSale = await marketContract.fetchItemsCreated()
-                console.log(userItemsForSale)
+                // const userItemsForSale = await marketContract.fetchItemsCreated()
+                // console.log(userItemsForSale)
                 
                 setPageCount(Math.ceil(userShipIds/6))
                 
-                const saleItems = await Promise.all(userItemsForSale.map(async i => {
-                    // const shipUri = await nftContract.shipURI(i)
-                    const tokenId = parseInt(i.tokenId["_hex"], 16)
-                    const ship = await nftContract.battleShips(tokenId)
-                    // const meta = await axios.get(shipUri)
-                    let item = {
-                        seller: i.seller,
-                        price: parseInt(i.price["_hex"], 16),
-                        tokenId: tokenId,
-                        level: ship.level,
-                        type: parseInt(ship.shipType["_hex"], 16),
-                        hp: parseInt(ship.health["_hex"], 16),
-                        dmg: parseInt(ship.damage["_hex"], 16),
-                        //   image: meta.data.image,
-                    }
-                    return item
-                }))
-                setUserItemsSale(saleItems)
+                // const saleItems = await Promise.all(userItemsForSale.map(async i => {
+                //     // const shipUri = await nftContract.shipURI(i)
+                //     const tokenId = parseInt(i.tokenId["_hex"], 16)
+                //     const ship = await nftContract.battleShips(tokenId)
+                //     // const meta = await axios.get(shipUri)
+                //     let item = {
+                //         seller: i.seller,
+                //         price: parseInt(i.price["_hex"], 16),
+                //         tokenId: tokenId,
+                //         level: ship.level,
+                //         type: parseInt(ship.shipType["_hex"], 16),
+                //         hp: parseInt(ship.health["_hex"], 16),
+                //         dmg: parseInt(ship.damage["_hex"], 16),
+                //         //   image: meta.data.image,
+                //     }
+                //     return item
+                // }))
+                // setUserItemsSale(saleItems)
             
                 const items = await Promise.all(userShipIds.map(async i => {
                     // const shipUri = await nftContract.shipURI(i)
@@ -96,6 +96,7 @@ function Storage(props) {
         hp: -1,
         dmg: -1,
     })
+    const [ itemPrice, setItemPrice ] = useState(0)
 
     async function sellItem() {
         const web3Modal = new Web3Modal()
@@ -111,7 +112,7 @@ function Storage(props) {
         let listingPrice = await contract.getListingPrice()
         listingPrice = listingPrice.toString()
 
-        let transaction = await contract.createMarketItem(nftAddress, tokenId, 10, { value: listingPrice })
+        let transaction = await contract.createMarketItem(nftAddress, tokenId, itemPrice, { value: listingPrice })
         await transaction.wait()
     }
     
@@ -230,16 +231,21 @@ function Storage(props) {
                                         <div className='slick-track'>
                                             {indexItems}
                                         </div>
-                                        <h3>Item in the market</h3>
+                                        {/* <h3>Item in the market</h3>
                                         <div className='slick-track'>
                                             {indexSaleItems}
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <Popup trigger={popup} setTrigger={setPopup}>
                                         <div style={{marginBottom: '24px'}}>
-                                            <h3>ID-{chosenItem.id}</h3>
-                                            <h3>Type-{chosenItem.type}</h3>
-                                            <h3>level-{chosenItem.level}</h3>
+                                            <h3>sell item</h3>
+                                            <p>ID-{chosenItem.id}</p>
+                                            <p>Type-{chosenItem.type}</p>
+                                            <p>level-{chosenItem.level}</p>
+                                            <input
+                                                placeholder="Price"
+                                                onChange={e => {setItemPrice(e.target.value);}}
+                                            />
                                         </div>
                                         <div className="nav-account-container">
                                             <div className="nav-account-anonymous-link-wrapper">

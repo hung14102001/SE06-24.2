@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
 
 const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
-const nftAddress = '0x9EF71611FcA0aFAb4437A015a5f2BA7Ffa98D6EC'
+const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 
 const style1 = {outline: 'none'};
 const style4 = {transform: 'translate(0px)'};

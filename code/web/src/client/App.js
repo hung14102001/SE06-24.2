@@ -24,7 +24,6 @@ function App() {
   async function requestAccount() {
       window.ethereum.request({ method: 'eth_requestAccounts' })
       .then((accounts) => {
-          console.log('account: ',accounts[0])
           setOwnerAccount(accounts[0])
           fetchOwnerTokenAmount()
       });
@@ -114,7 +113,7 @@ function App() {
                     </div>
                     <div className="nav-right-content">
                         <div className="locale-switcher">
-                            <div className="locale-switcher-icon" onClick={() => { setPopup(true) }}>
+                            <div className="locale-switcher-icon" onClick={() => { setPopup(true); setCoinExchangeAmount(0) }}>
                                 <div className="locale-switch-trigger">
                                     <svg width="14" height="14" className="" viewBox="0 0 16 16">
                                         <path
@@ -130,8 +129,8 @@ function App() {
                                         placeholder="Amount"
                                         onChange={e => {setCoinExchangeAmount(e.target.value); setExchangeNote('')}}
                                     />
-                                    <h3>{coinExchangeAmount*0.00001} ETH</h3>
-                                    <h3>{exchangeNote}</h3>
+                                    <p>{coinExchangeAmount*0.00001} ETH</p>
+                                    <span>{exchangeNote}</span>
                                 </div>
                                 <div className="nav-account-container">
                                     <div className="nav-account-anonymous-link-wrapper">
@@ -191,7 +190,7 @@ function App() {
 
         <Routes>
           <Route exact path='/' element={<Showroom userAccount={userAccount} userTokenAmount={userTokenAmount}/>}/>
-          <Route exact path='/marketplace' element={<MarketplacePage userAccount={userAccount}/>}/>
+          <Route exact path='/marketplace' element={<MarketplacePage userAccount={userAccount} userTokenAmount={userTokenAmount}/>}/>
           <Route exact path='/storage' element={<Storage userAccount={userAccount}/>}/>
         </Routes>
       </div>
