@@ -3,7 +3,7 @@ import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
 import { ethers } from 'ethers';
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
 
-const tokenAddress = "0x287DE3ba64fdE0cc6DCeD06Ec425012397219361"
+const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
 const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 
 const style1 = {outline: 'none'};

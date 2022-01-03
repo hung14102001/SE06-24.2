@@ -1,14 +1,20 @@
 import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
+import Popup from './components/Popup';
+
 import {useState, useEffect} from 'react';
 import { ethers } from 'ethers';
 import Marketplace from '../artifacts/contracts/Marketplace.sol/Marketplace.json';
+import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
 
-const marketAddress = "0x7611d076A48979Fefbf5B9C048910C61cB397a6e"
+const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
+const marketAddress = "0xA31429C01c175e0b2eD633d814984a181521D2F1"
+// const nftAddress = '0x54Ab0265b80699390d4E9C26404aEFF473Aa266C'
+const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 
 const style1 = {outline: 'none'};
 const style4 = {transform: 'translate(0px)'};
 
-function MarketplacePage() {
+function MarketplacePage(props) {
 
     const [pageOrder, setPageOrder] = useState(1);
     const [pageCount, setPageCount] = useState(1);
@@ -16,17 +22,40 @@ function MarketplacePage() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     
     const [ itemCount, setItemCount ] = useState(0);
-    const [ items, setItems ] = useState([])
-    const marketContract = new ethers.Contract(marketAddress, Marketplace.abi, provider);
+    const [ marketItems, setMarketItems ] = useState([])
+    const marketContract = new ethers.Contract(marketAddress, Marketplace.abi, provider.getSigner());
+    const nftContract = new ethers.Contract(nftAddress, BattleShipNFT.abi, provider);
     
     async function getItemInfo() {
         if (provider) {
             try {
-                const data = await marketContract.getUnsoldItemCount();
-                const itemForSale = await marketContract.fetchMarketItems();
-                setPageCount(Math.ceil(data/6));
-                setItemCount(data);
-                setItems(itemForSale);
+                let count = await marketContract.getUnsoldItemCount()
+                count = parseInt(count["_hex"], 16)
+                const itemForSale = await marketContract.fetchMarketItems()
+
+                setPageCount(Math.ceil(count/6))
+                setItemCount(count)
+
+                const items = await Promise.all(itemForSale.map(async i => {
+                    // const shipUri = await nftContract.shipURI(i)
+                    const tokenId = parseInt(i.tokenId["_hex"], 16)
+                    const ship = await nftContract.battleShips(tokenId)
+                    // const meta = await axios.get(shipUri)
+                    let item = {
+                        itemId: parseInt(i.itemId["_hex"], 16),
+                        tokenId: tokenId,
+                        seller: i.seller,
+                        price: parseInt(i.price["_hex"], 16),
+                        type: parseInt(ship.shipType["_hex"], 16),
+                        level: ship.level,
+                        hp: parseInt(ship.health["_hex"], 16),
+                        dmg: parseInt(ship.damage["_hex"], 16),
+                    //   image: meta.data.image,
+                    }
+                    return item
+                }))
+
+                setMarketItems(items);
             } catch (err) {
                 console.log(err)
             }
@@ -36,6 +65,68 @@ function MarketplacePage() {
     useEffect(() => {
         getItemInfo()
     }, [])    
+
+    const [popup, setPopup] = useState(false)
+    const [ chosenItem, setChosenItem ] = useState({})
+    
+    let indexItems = marketItems.map((item) => 
+        <div className="slick-slide" key={item.tokenId}>
+            <div className="card">
+                <picture className="card-banner-wrapper">
+                    <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
+                </picture>
+                <div className="card-tail">
+                    <div className="card-date-and-category-wrapper">
+                        <span className="card-category">Wellington</span>
+                    </div>
+                    <h3 className="card-title">#{item.tokenId}</h3>
+                    <div className="card-detail">
+                        <span><a>Seller: {item.seller.substring(0,4) + '...' + item.seller.slice(-4)}</a></span>
+                        <div className="card-prop">
+                            <p>Type: {item.type}</p>
+                            <p>Level: {item.level}</p>
+                            <p>Health: {item.hp}</p>
+                            <p>Damage: {item.dmg}</p>
+                        </div>
+                    </div>
+                    <button className="home-hero-button" type="button">
+                        <div className="primary-button" onClick={ () => {
+                            setChosenItem({
+                                itemId: item.itemId,
+                                tokenId: item.tokenId,
+                                seller: item.seller,
+                                type: item.type,
+                                level: item.level,
+                                price: item.price,
+                            })
+                            setPopup(true)
+                            setPriceNote('')
+                        }}> 
+                            <span></span>
+                            <span>
+                                {item.price} AT
+                            </span>
+                        </div>
+                    </button>
+                    
+                </div>
+            </div>
+        </div>
+    )
+    const [ priceNote, setPriceNote ] = useState('')
+
+    async function buyAnItem() {
+        if (props.userAccount == chosenItem.seller.toLowerCase()) setPriceNote('You cannot buy your own item') 
+        else if (props.userTokenAmount < chosenItem.price) setPriceNote('Insufficient asset')
+        else {
+            setPriceNote('Waiting for user signing transaction')
+            await marketContract.createMarketSale(
+                tokenAddress, 
+                nftAddress, 
+                chosenItem.itemId,
+            )
+        }
+    }
     
     return (
         <div>
@@ -69,131 +160,25 @@ function MarketplacePage() {
                                 <div className="slick-slider news-carousel">
                                     
                                     <div className="slick-list">
-                                        
                                         <div className='slick-track'>
-                                            <div className="slick-slide">
-                                                <div className="card">
-                                                    <picture className="card-banner-wrapper">
-                                                        <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
-                                                    </picture>
-                                                    <div className="card-tail">
-                                                        <div className="card-date-and-category-wrapper">
-                                                            <span className="card-category">Wellington</span>
-                                                        </div>
-                                                        <h3 className="card-title">#666</h3>
-                                                        <div className="card-detail">
-                                                            <span><a>Seller:0xd...3j2</a></span>
-                                                            <div className="card-prop">
-                                                                <p>HP: 100</p>
-                                                                <p>HP: 100</p>
-                                                                <p>HP: 100</p>
-                                                            </div>
-                                                        </div>
-                                                        <button className="home-hero-button" type="button">
-                                                            <div className="primary-button">
-                                                                <span></span>
-                                                                <span>
-                                                                    1000 TOKEN
-                                                                </span>
-                                                            </div>
-                                                        </button>
-                                                        
-                                                    </div>
+                                            {indexItems}
+                                        </div>
+                                        <Popup trigger={popup} setTrigger={setPopup}>
+                                            <div style={{marginBottom: '24px'}}>
+                                                <h3>Buy an item</h3>
+                                                <p>ID - {chosenItem.tokenId}</p>
+                                                <p>Type - {chosenItem.type}</p>
+                                                <p>level - {chosenItem.level}</p>
+                                                <p>price - {chosenItem.price} AT</p>
+                                                <span>{priceNote}</span>
+                                                
+                                            </div>
+                                            <div className="nav-account-container">
+                                                <div className="nav-account-anonymous-link-wrapper">
+                                                    <a onClick={buyAnItem}>Confirm</a>
                                                 </div>
                                             </div>
-                                            <div className="slick-slide">
-                                                <div className="card">
-                                                    <picture className="card-banner-wrapper">
-                                                        <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
-                                                    </picture>
-                                                    <div className="card-tail">
-                                                        <div className="card-date-and-category-wrapper">
-                                                            <span className="card-category">Wellington</span>
-                                                        </div>
-                                                        <h3 className="card-title">#666</h3>
-                                                        <div className="card-detail">
-                                                            <span><a>Seller:0xd...3j2</a></span>
-                                                            <div className="card-prop">
-                                                                <p>HP: 100</p>
-                                                                <p>HP: 100</p>
-                                                                <p>HP: 100</p>
-                                                            </div>
-                                                        </div>
-                                                        <button className="home-hero-button" type="button">
-                                                            <div className="primary-button">
-                                                                <span></span>
-                                                                <span>
-                                                                    1000 TOKEN
-                                                                </span>
-                                                            </div>
-                                                        </button>
-                                                        
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="slick-slide">
-                                                <div className="card">
-                                                    <picture className="card-banner-wrapper">
-                                                        <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
-                                                    </picture>
-                                                    <div className="card-tail">
-                                                        <div className="card-date-and-category-wrapper">
-                                                            <span className="card-category">Wellington</span>
-                                                        </div>
-                                                        <h3 className="card-title">#666</h3>
-                                                        <div className="card-detail">
-                                                            <span><a>Seller:0xd...3j2</a></span>
-                                                            <div className="card-prop">
-                                                                <p>HP: 100</p>
-                                                                <p>HP: 100</p>
-                                                                <p>HP: 100</p>
-                                                            </div>
-                                                        </div>
-                                                        <button className="home-hero-button" type="button">
-                                                            <div className="primary-button">
-                                                                <span></span>
-                                                                <span>
-                                                                    1000 TOKEN
-                                                                </span>
-                                                            </div>
-                                                        </button>
-                                                        
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>  
-                                        <div className='slick-track'>
-                                            <div className="slick-slide">
-                                                <div className="card">
-                                                    <picture className="card-banner-wrapper">
-                                                        <img className="card-banner" src={phoenix} alt="" width="1920" height="1080"></img>
-                                                    </picture>
-                                                    <div className="card-tail">
-                                                        <div className="card-date-and-category-wrapper">
-                                                            <span className="card-category">Wellington</span>
-                                                        </div>
-                                                        <h3 className="card-title">#666</h3>
-                                                        <div className="card-detail">
-                                                            <span><a>Seller:0xd...3j2</a></span>
-                                                            <div className="card-prop">
-                                                                <p>HP: 100</p>
-                                                                <p>HP: 100</p>
-                                                                <p>HP: 100</p>
-                                                            </div>
-                                                        </div>
-                                                        <button className="home-hero-button" type="button">
-                                                            <div className="primary-button">
-                                                                <span></span>
-                                                                <span>
-                                                                    1000 TOKEN
-                                                                </span>
-                                                            </div>
-                                                        </button>
-                                                        
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>  
+                                        </Popup>
                                     </div>
                                 </div>
                                 <div className="list-page">
