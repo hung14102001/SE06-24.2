@@ -46,12 +46,6 @@ class Island2x2:
             for i in range(0, 2):
                 part = IslandPart(ursina.Vec3(position_x + i, position_y - j,0), self.tiles[16*j + i+4])
 
-# class Island2x2green:
-#     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
-#     def __init__(self, position_x, position_y):
-#         for j in range(0, 2):
-#             for i in range(0, 2):
-#                 part = IslandPart(ursina.Vec3(position_x + i, position_y - j,0), self.tiles[16*j + i+36])
 
 class Island4x4:
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
@@ -66,7 +60,6 @@ class Island6x6:
         for j in range(0, 6):
                 for i in range(0, 6):
                     part = IslandPart(ursina.Vec3(position_x + i, position_y - j,0), self.tiles[16*((j+1)//2) + ((i+1)//2) + 6])
-
             
 class PlantPart(ursina.Entity):
     def __init__(self, position,img):
@@ -77,25 +70,52 @@ class PlantPart(ursina.Entity):
             texture=img,
             # collider="box"
         )
+
+class CoinPart(ursina.Entity):
+    def __init__(self, position,img):
+        super().__init__(
+            position=position,
+            scale=1,
+            model="quad",
+            texture=img,
+            collider="box"
+        )
+    def update(self):
+        hitinfo = self.intersects()
+        if hitinfo.hit:
+            ursina.destroy(self)
+            # self.player.score += 1
+class Coin:
+    coin = os.path.join("Coins", "coin.png")
+    def __init__(self):
+        for x in range(0,50):
+            px = randint(-20, 20)
+            py = randint(-20, 20)
+            part = CoinPart(ursina.Vec3(px, py, 0), self.coin)
+    # text = ursina.Text(text="Score: " +str(score), color=ursina.color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
+    
 class Plant:
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
+    coin = os.path.join("Coins", "coin.png")
     def __init__(self):
         for x in range(0,10):
             for i in range(0, 3):
-                px = randint(-17, 17)
-                py = randint(-17, 17)
+                px = randint(-20, 20)
+                py = randint(-20, 20)
                 part = PlantPart(ursina.Vec3(px+i, py, 0), self.tiles[70+i])
         for x in range(0,10):
             for i in range(0, 2):
-                px = randint(-17, 17)
-                py = randint(-17, 17)
+                px = randint(-20, 20)
+                py = randint(-20, 20)
                 part = PlantPart(ursina.Vec3(px+i, py, 0), self.tiles[87+i])
+
 class Restrictor(ursina.Entity):
     def __init__(self):
         super().__init__(
             model=ursina.Circle(resolution=50, mode='line'),
             scale=(30,30),
-            color=ursina.color.rgb(0,0,0)
+            color=ursina.color.rgb(0,0,0),
+            text = ursina.Text(text="Time: ", color=ursina.color.rgb(0,0,0), scale = 2.5, position=(.3,0.5,0)),
         )
         self.countDown = time.time() + 5
         self.restricting = False
@@ -113,7 +133,7 @@ class Restrictor(ursina.Entity):
                 self.restricting = False
 
         elif time.time() > self.countDown:
-            self.countDown += 5
+            self.countDown += 15
             self.restricting = True
 
 

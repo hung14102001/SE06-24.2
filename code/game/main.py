@@ -5,7 +5,7 @@ from ursina import *
 from random import randint
 from cannonball import CannonBall
 from player import Player
-from sea import Sea, Plant
+from sea import Sea, Plant, Coin
 from minimap import MiniMap
 # from network import Network
 from ursina.camera import Camera
@@ -23,7 +23,7 @@ def input(key):
         # Audio('audios/shot.wav').play()
         if time.time() - player.reload > 1:
             player.reload = time.time()
-            CannonBall(player, mouse.x, mouse.y)
+            CannonBall(player,player.x, player.y, mouse.x, mouse.y)
     
 
 # display the background
@@ -32,6 +32,7 @@ player = Player(-15,-15)
 background = Sea()
 
 plant = Plant()
+coin = Coin()
 minimap = MiniMap(player, background)
 # camera.z = -100
 Enemy(Vec2(5,5), '1111', '234', './Ships/ship_4.png')

@@ -26,7 +26,7 @@ class MiniMap(Entity):
             parent=self,
             scale=1.2,
             model='quad',
-            position=(0.055, 0.07, 0.0001),
+            position=(0.03, 0.07, 0.0001),
             color=goldenbrown
         )
         self.cotRep = Entity(

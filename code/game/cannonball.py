@@ -1,13 +1,13 @@
 import os, math
 from ursina import Entity, collider, destroy, HotReloader
 class CannonBall(Entity):
-    def __init__(self, player, mouse_x, mouse_y):
+    def __init__(self,player,  px, py, mouse_x, mouse_y):
 
         super().__init__(
             model='quad',
             texture=os.path.join("Cannon", "cannonBall.png"),
-            x=player.x,
-            y=player.y,
+            x=px,
+            y=py,
             z=0,
             scale_x=0.18,
             scale_y=0.18,
@@ -24,7 +24,7 @@ class CannonBall(Entity):
         self.rediffY = self.mouse_y
 
         self.rad = math.atan(self.rediffY/self.rediffX)
-        destroy(self,delay=5)
+        destroy(self,delay=1)
         
     def update(self):
         if self.rediffX < 0:

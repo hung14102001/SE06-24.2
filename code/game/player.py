@@ -1,5 +1,5 @@
 import os
-from ursina import Entity, camera, collider, held_keys, Vec2, Vec3, color
+from ursina import Entity, camera, collider, held_keys, Vec2, Vec3, color, Text, color
 import time
 class Player(Entity):
     def __init__(self, position_x, position_y):
@@ -10,16 +10,17 @@ class Player(Entity):
             texture=os.path.join("Ships", "ship_4.png"),
             x=position_x,
             y=position_y,
+            score = 0,
             rotation_z = 0,
             z=0,
             scale_x=1,
             scale_y=2,
+            # text = Text(text="Score: " + str(score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0)),
         )
-        self.speed = 0.1
+        self.speed = 0.15
         self.reload = time.time()
         self.level = 1
         self.team = 1
-
         self.healthbar_pos = Vec2(0, -0.1)
         self.healthbar_size = Vec2(0.2, 0.02)
         self.healthbar_bg = Entity(
@@ -38,17 +39,7 @@ class Player(Entity):
         )
         
         self.health = 100
-        # self.death_message_shown = False
-
-        # self.gun = Entity(
-        #     parent=camera.ui,
-        #     position=Vec2(0.6, -0.45),
-        #     scale=Vec3(0.1, 0.2, 0.65),
-        #     rotation=Vec3(-20, -20, -5),
-        #     model="cube",
-        #     texture="white_cube",
-        #     color=color.color(0, 0, 0.4)
-        # )
+        text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
         
     def update(self):
         angle = self.rotation_z
@@ -95,7 +86,7 @@ class Player(Entity):
         
         camera.x = self.x
         camera.y = self.y
-        camera.z = -20
+        camera.z = -30
 
         hitinfo = self.intersects()
         if hitinfo.hit:          
