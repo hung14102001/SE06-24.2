@@ -5,11 +5,19 @@ import {useState, useEffect} from 'react';
 import { ethers } from 'ethers';
 import Marketplace from '../artifacts/contracts/Marketplace.sol/Marketplace.json';
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
+import AztecToken from '../artifacts/contracts/AztecToken/AztecToken.sol/AztecToken.json';
 
-const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
-const marketAddress = "0xA31429C01c175e0b2eD633d814984a181521D2F1"
+// const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
+// const marketAddress = "0xA31429C01c175e0b2eD633d814984a181521D2F1"
+
 // const nftAddress = '0x54Ab0265b80699390d4E9C26404aEFF473Aa266C'
-const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
+// const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
+const tokenAddress = process.env.REACT_APP_TOKEN_ADDRESS
+console.log(tokenAddress)
+const marketAddress = process.env.REACT_APP_MARKET_ADDRESS
+console.log(marketAddress)
+const nftAddress = process.env.REACT_APP_NFT_ADDRESS
+console.log(nftAddress)
 
 const style1 = {outline: 'none'};
 const style4 = {transform: 'translate(0px)'};
@@ -24,6 +32,7 @@ function MarketplacePage(props) {
     const [ itemCount, setItemCount ] = useState(0);
     const [ marketItems, setMarketItems ] = useState([])
     const marketContract = new ethers.Contract(marketAddress, Marketplace.abi, provider.getSigner());
+    const tokenContract = new ethers.Contract(tokenAddress, AztecToken.abi, provider.getSigner());
     const nftContract = new ethers.Contract(nftAddress, BattleShipNFT.abi, provider);
     
     async function getItemInfo() {
@@ -32,10 +41,10 @@ function MarketplacePage(props) {
                 let count = await marketContract.getUnsoldItemCount()
                 count = parseInt(count["_hex"], 16)
                 const itemForSale = await marketContract.fetchMarketItems()
-
+                
                 setPageCount(Math.ceil(count/6))
                 setItemCount(count)
-
+                
                 const items = await Promise.all(itemForSale.map(async i => {
                     // const shipUri = await nftContract.shipURI(i)
                     const tokenId = parseInt(i.tokenId["_hex"], 16)
@@ -50,11 +59,11 @@ function MarketplacePage(props) {
                         level: ship.level,
                         hp: parseInt(ship.health["_hex"], 16),
                         dmg: parseInt(ship.damage["_hex"], 16),
-                    //   image: meta.data.image,
+                        //   image: meta.data.image,
                     }
                     return item
                 }))
-
+                
                 setMarketItems(items);
             } catch (err) {
                 console.log(err)
@@ -120,11 +129,17 @@ function MarketplacePage(props) {
         else if (props.userTokenAmount < chosenItem.price) setPriceNote('Insufficient asset')
         else {
             setPriceNote('Waiting for user signing transaction')
-            await marketContract.createMarketSale(
-                tokenAddress, 
-                nftAddress, 
-                chosenItem.itemId,
-            )
+            let approvedAT = await tokenContract.allowance(props.userAccount, marketAddress)
+
+            if (approvedAT < chosenItem.price) {
+                await tokenContract.approve(marketAddress, chosenItem.price - approvedAT)
+            } else {
+                await marketContract.createMarketSale(
+                    tokenAddress, 
+                    nftAddress, 
+                    chosenItem.itemId,
+                )
+            }
         }
     }
     

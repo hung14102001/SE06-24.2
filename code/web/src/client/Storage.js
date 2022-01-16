@@ -7,9 +7,10 @@ import { ethers } from 'ethers';
 import Marketplace from '../artifacts/contracts/Marketplace.sol/Marketplace.json';
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
 import Web3Modal from 'web3modal'
+// require('dotenv').config()
 
-const marketAddress = "0xA31429C01c175e0b2eD633d814984a181521D2F1"
-const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
+const marketAddress = process.env.REACT_APP_MARKET_ADDRESS
+const nftAddress = process.env.REACT_APP_NFT_ADDRESS
 
 const style1 = {outline: 'none'};
 const style4 = {transform: 'translate(0px)'};

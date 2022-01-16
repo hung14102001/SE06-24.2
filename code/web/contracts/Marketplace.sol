@@ -54,9 +54,9 @@ contract Marketplace is Ownable {
     //     payable(msg.sender).transfer(address(this).balance);
     // }
 
-    function somthing() public view returns (uint) {
-        return _itemsSold;
-    }
+    // function somthing() public view returns (uint) {
+    //     return _itemsSold;
+    // }
 
     
     /* Places an item for sale on the marketplace */
@@ -104,8 +104,10 @@ contract Marketplace is Ownable {
         uint tokenId = marketItems[itemId].tokenId;
 
         uint256 balance = AztecToken(tokenContract).balanceOf(msg.sender);
-        require(balance >= price, "Please submit the asking price in order to complete the purchase");
+        require(balance >= price, "Please submit asking price in order to complete the purchase");
 
+        uint256 allowance = AztecToken(tokenContract).allowance(msg.sender, address(this));
+        require(allowance >= price, "Please approve asking price in order to complete the purchase");
 
         // transfer aztect token from buyer to seller
         AztecToken(tokenContract).transferFrom(msg.sender, 

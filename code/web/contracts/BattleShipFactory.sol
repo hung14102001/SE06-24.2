@@ -22,6 +22,7 @@ contract BattleShipFactory is Ownable {
     }
 
     BattleShip[] public battleShips;
+    uint16 lootboxPrice = 30;
 
     mapping(uint256 => address) battleShipToOwner;
     mapping(address => uint256) ownerShipCount;
@@ -33,34 +34,36 @@ contract BattleShipFactory is Ownable {
     {
         uint256 rand = uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp)));
         // 3 types of ship
-        return rand % 3 + 1;
+        if (rand%100 < 60) return 1;
+        if (rand%100 < 90) return 2;
+        return 3;
     }
     
-    function _generateRandomNumber(string memory prop)
+    function _generateRandomNumber(string memory prop, uint _type)
         private
         view
         returns (uint256)
     {
         uint256 rand = uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, prop)));
-        return rand % 20;
+        return rand % 10*_type + 10*_type;
     }
 
     function createRandomBattleShip(address tokenAddress) external {
 
-        require(AztecToken(tokenAddress).balanceOf(msg.sender) > 4000, "Insufficient balance!");
+        require(AztecToken(tokenAddress).balanceOf(msg.sender) > lootboxPrice, "Insufficient balance!");
 
-        uint256 rand = _generateRandomNumber();
+        uint256 shipType = _generateRandomNumber();
 
-        uint dmg = _generateRandomNumber("dmg") + 3**rand;
-        uint hp = _generateRandomNumber("hp") + 3**rand;
+        uint dmg = _generateRandomNumber("dmg", shipType);
+        uint hp = _generateRandomNumber("hp", shipType) + dmg*3;
 
-        battleShips.push(BattleShip(rand, 0, 1, hp, dmg));
+        battleShips.push(BattleShip(shipType, 0, 1, hp, dmg));
 
         uint id = battleShips.length;
         ownerShipCount[msg.sender] += 1;
         battleShipToOwner[id] = msg.sender;
 
-        AztecToken(tokenAddress).burn(msg.sender, 4000);
+        AztecToken(tokenAddress).burn(msg.sender, lootboxPrice);
 
         emit NewBattleShip(id);
     }

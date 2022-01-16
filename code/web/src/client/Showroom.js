@@ -2,9 +2,10 @@
 import phoenix from './images/VALORANT_Phoenix_Dark_thumbnail.jpg';
 import { ethers } from 'ethers';
 import BattleShipNFT from '../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json';
+// require('dotenv').config()
 
-const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
-const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
+const tokenAddress = process.env.REACT_APP_TOKEN_ADDRESS
+const nftAddress = process.env.REACT_APP_NFT_ADDRESS
 
 const style1 = {outline: 'none'};
 const style4 = {transform: 'translate(0px)'};
@@ -19,8 +20,6 @@ function Showroom(props) {
             const nftContract = new ethers.Contract(nftAddress, BattleShipNFT.abi, provider.getSigner())
             let transaction = await nftContract.createRandomBattleShip(tokenAddress);
             let txn = await transaction.wait()
-            let event = txn.event
-            console.log(event)
 
         }
     }
@@ -84,7 +83,7 @@ function Showroom(props) {
                                                             <div className="primary-button">
                                                                 <span></span>
                                                                 <span>
-                                                                    4000 AT
+                                                                    30 AT
                                                                 </span>
                                                             </div>
                                                         </button>

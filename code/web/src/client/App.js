@@ -9,7 +9,7 @@ import Showroom from './Showroom';
 import MarketplacePage from './Marketplace';
 import Storage from './Storage';
 
-const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
+const tokenAddress = process.env.REACT_APP_TOKEN_ADDRESS
 
 function App() {
 
