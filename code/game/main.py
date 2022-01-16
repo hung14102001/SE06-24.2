@@ -28,7 +28,7 @@ def input(key):
 
 # display the background
 app = Ursina()
-player = Player(13, 13)
+player = Player(-15,-15)
 background = Sea()
 
 plant = Plant()

@@ -1,10 +1,12 @@
 from ursina import Entity, Vec3, Vec2, color, collider, destroy
 
 class Enemy(Entity):
-    def __init__(self, position: Vec2, identifier: str, username: str, img_path: str):
+    def __init__(self, info):
+        if info['ship'] == 1:
+            img_path = './Ships/ship_1.png'
         super().__init__(
-            position=position,
-            model="cube",
+            position=Vec2(*info['position']),
+            model="quad",
             collider="box",
             texture=img_path,
             scale=Vec3(1, 2, 0)
@@ -12,7 +14,7 @@ class Enemy(Entity):
 
         self.name_tag = Entity(
             parent=self,
-            text=username,
+            text=info['username'],
             position=Vec3(0, 1.3, 0),
             scale=Vec2(5, 3),
             billboard=True,
@@ -28,9 +30,10 @@ class Enemy(Entity):
         )
 
         self.maxHealth = 100
-        self.health = 100
-        self.id = identifier
-        self.username = username
+        self.health = float(info['health'])
+        print(self.health)
+        self.id = info['id']
+
     def update(self):
         self.healthbar.scale_x = self.health / self.maxHealth * 1.5
         if self.health <= 0:
