@@ -2,6 +2,7 @@ import os
 import ursina
 from random import randint
 import time
+import threading
 
 from ursina import collider    
 
@@ -72,27 +73,23 @@ class PlantPart(ursina.Entity):
         )
 
 class CoinPart(ursina.Entity):
-    def __init__(self, position,img):
+    def __init__(self, position, img):
         super().__init__(
             position=position,
             scale=1,
-            model="quad",
+            model='quad',
             texture=img,
-            collider="box"
+            collider='quad',
         )
-    def update(self):
-        hitinfo = self.intersects()
-        if hitinfo.hit:
-            ursina.destroy(self)
-            # self.player.score += 1
-class Coin:
+        
+class Coin():
     coin = os.path.join("Coins", "coin.png")
     def __init__(self):
+        self.parts = []
         for x in range(0,50):
             px = randint(-20, 20)
             py = randint(-20, 20)
             part = CoinPart(ursina.Vec3(px, py, 0), self.coin)
-    # text = ursina.Text(text="Score: " +str(score), color=ursina.color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
     
 class Plant:
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
@@ -110,12 +107,24 @@ class Plant:
                 part = PlantPart(ursina.Vec3(px+i, py, 0), self.tiles[87+i])
 
 class Restrictor(ursina.Entity):
+    __instance = None
+    @staticmethod 
+    def getInstance():
+        """ Static access method. """
+        if Restrictor.__instance == None:
+            Restrictor()
+        return Restrictor.__instance
+
+
     def __init__(self):
+        if Restrictor.__instance != None:
+            return self
+        else:
+            Restrictor.__instance = self
         super().__init__(
             model=ursina.Circle(resolution=50, mode='line'),
             scale=(30,30),
             color=ursina.color.rgb(0,0,0),
-            text = ursina.Text(text="Time: ", color=ursina.color.rgb(0,0,0), scale = 2.5, position=(.3,0.5,0)),
         )
         self.countDown = time.time() + 5
         self.restricting = False

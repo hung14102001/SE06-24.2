@@ -1,5 +1,8 @@
 import os, math
+from test import createAnimation
 from ursina import Entity, collider, destroy, HotReloader
+from player import Player
+from sea import CoinPart
 class CannonBall(Entity):
     def __init__(self,player,  px, py, mouse_x, mouse_y):
 
@@ -35,4 +38,8 @@ class CannonBall(Entity):
             self.y += math.sin(self.rad)*self.speed
         hitinfo = self.intersects(ignore=(self,self.player))
         if hitinfo.hit:
+            if isinstance(hitinfo.entity, CoinPart):
+                destroy(hitinfo.entity)
+            createAnimation(self.x, self.y, 'kenney_piratePack/PNG/Default size/Effects/explosion')
+
             destroy(self)
