@@ -11,17 +11,9 @@ from chacracter import Chacracter
 from loading import LoadingWheel
 from direct.stdpy import thread
 from ursina.prefabs.health_bar import HealthBar
-
-class Title(Text):
-    def __init__(self):
-        super().__init__(
-            text='WELCOME TO OUR WORLD !',
-            origin=(0, -4),
-            color=color.black,
-            size=Text.size,
-            font='Font/aAbstractGroovy.ttf',
-        )
-        self.appear(speed=.05, delay=0)
+from options import AudioSwitch
+from ursina import printvar
+from endgame import GameOver, Completed
         
 class MainMenu(Entity):
     def __init__(self, **kwargs):
@@ -30,16 +22,23 @@ class MainMenu(Entity):
             ignore_paused=True)
 
         # Create empty entities that will be parents of our menus content
-        #self.title = Title()
-        self.bg = Sprite('Image/bg.png')
+        self.title = Entity(parent=self,model='quad',texture='welcome2.jpg',position=(0,0.2),scale=1) 
+        self.bg = Sprite('Image/bg2.png')
         self.main_menu = Entity(parent=self, enabled=True)
-        self.options_menu= Entity(parent=self,enabled=False)
-        #self.a = Audio('start_game', loop=False, autoPlay=True)
+        self.choose_menu = Entity(parent=self, enabled=False)
+        self.options_menu = Entity(parent=self,enabled=False)
 
         self.player = Player(-15, -15)
         self.background = Sea()
         self.minimap = MiniMap(self.player, self.background)
-        self.loading_screen = LoadingWheel(enabled=False)
+        self.loading_screen = LoadingWheel(enabled=False)     
+        self.a = Audio('start_game',pitch=1,loop=False,autoPlay=True)
+
+        def isSounding(sound):
+            if self.a.volume==1:
+                self.b=Audio(sound,pitch=1,loop=False,autoplay=True)
+            else:
+                self.b.pause()
 
         # [MAIN MENU] WINDOWN START
         def display(item, state):               # Show/hide item on screen
@@ -57,9 +56,10 @@ class MainMenu(Entity):
                 display(arg, False)
                 
         def choose1():
-            hide(self.chac1, self.chac2, self.chac3,self.chac4,self.chac5)
+            hide(self.choose_menu)
             show(self.loading_screen)
             self.player.texture= os.path.join("Ships", list[0])
+            isSounding('mouse_click')
             t = time.time()
         
             try:
@@ -70,9 +70,10 @@ class MainMenu(Entity):
             print('---', time.time()-t)
 
         def choose2():
-            hide(self.chac1, self.chac2, self.chac3,self.chac4,self.chac5)
+            hide(self.choose_menu)
             show(self.loading_screen)
             self.player.texture= os.path.join("Ships", list[1])
+            isSounding('mouse_click')
             t = time.time()
             
             try:
@@ -83,9 +84,11 @@ class MainMenu(Entity):
             print('---', time.time()-t)
 
         def choose3():
-            hide(self.chac1, self.chac2, self.chac3,self.chac4,self.chac5)
+            hide(self.choose_menu)
             show(self.loading_screen)
             self.player.texture= os.path.join("Ships", list[2])
+            isSounding('mouse_click')
+
             t = time.time()
         
             try:
@@ -96,9 +99,10 @@ class MainMenu(Entity):
             print('---', time.time()-t)
 
         def choose4():
-            hide(self.chac1, self.chac2, self.chac3,self.chac4,self.chac5)
+            hide(self.choose_menu)
             show(self.loading_screen)
             self.player.texture= os.path.join("Ships", list[3])
+            isSounding('mouse_click')
             t = time.time()
         
             try:
@@ -109,9 +113,10 @@ class MainMenu(Entity):
             print('---', time.time()-t)
 
         def choose5():
-            hide(self.chac1, self.chac2, self.chac3,self.chac4,self.chac5)
+            hide(self.choose_menu)
             show(self.loading_screen)
             self.player.texture= os.path.join("Ships", list[4])
+            isSounding('mouse_click')
             
             t = time.time()
         
@@ -123,15 +128,15 @@ class MainMenu(Entity):
             print('---', time.time()-t)
         list = ["ship_2.png","ship_3.png","ship_4.png","ship_5.png","ship_6.png"]
 
-        self.chac1=Chacracter('Chacracter1',2,-1,list[0],choose1)
-        self.chac2=Chacracter('Chacracter2',0,-1,list[1],choose2)
-        self.chac3=Chacracter('Chacracter3',-2,-1,list[2],choose3)
-        self.chac4=Chacracter('Chacracter4',1,1,list[3],choose1)
-        self.chac5=Chacracter('Chacracter5',-1,1,list[4],choose1)
+        self.chac1=Chacracter('Chacracter 1',self.choose_menu,-0.4,0.1,list[0],choose1)
+        self.chac2=Chacracter('Chacracter 2',self.choose_menu,0,0.1,list[1],choose2)
+        self.chac3=Chacracter('Chacracter 3',self.choose_menu,0.4,0.1,list[2],choose3)
+        self.chac4=Chacracter('Chacracter 4',self.choose_menu,-0.2,-0.2,list[3],choose1)
+        self.chac5=Chacracter('Chacracter 5',self.choose_menu,0.2,-0.2,list[4],choose1)
 
         def loadTextures():
             textures_to_load = ['brick', 'shore', 'grass', 'heightmap'] * 25
-            bar = HealthBar(max_value=len(textures_to_load), value=0, position=(-.5,-.35,-2), scale_x=1, animation_duration=0, world_parent=self.loading_screen, bar_color=color.gray)
+            bar = HealthBar(max_value=len(textures_to_load), value=0, position=(-.5,-.35,-2), scale_x=1, animation_duration=0, world_parent=self.loading_screen, bar_color='#f5af42')
             for i, t in enumerate(textures_to_load):
                 load_texture(t)
                 print(i)
@@ -140,51 +145,76 @@ class MainMenu(Entity):
             print('loaded textures')
             hide(self.loading_screen)
             show(self.player,self.background,self.minimap)
+            show(self.player.healthbar_bg,self.player.healthbar)
             Scene()
             self.player.text.visible=True
 
+
          # Reference of our action function for play button
         def play_btn():
+            isSounding('mouse_click')
             hide(self.bg, self.main_menu)
-            show(self.chac1, self.chac2, self.chac3,self.chac4, self.chac5)
-            #self.a.fade_out(duration=0.5)
+            show(self.choose_menu)
 
         # Reference of our action function for options button
         def options_menu_btn():
-            hide(self.bg, self.main_menu)
+            isSounding('mouse_click')
+            hide(self.main_menu)
             show(self.options_menu)
         
         # Reference of our action function for quit button
         def quit_game():
+            isSounding('mouse_click')
             application.quit()
 
         # Button list
-        ButtonList(button_dict={
-            "Play": Func(play_btn),
-            "Options": Func(options_menu_btn),
-            "Exit": Func(quit_game)
-        }, y=0, parent=self.main_menu)
+        Entity(parent=self.main_menu, model='quad',texture='play_btn.jpg',position=(0,0,0),scale=(0.5,0.1,1))
+        Button('Play',parent=self.main_menu,position=(0,0,0),scale=(0.2,0.06,1),color=rgb(255,255,255,0),on_click=play_btn)
+
+        Entity(parent=self.main_menu, model='quad',texture='options_btn.jpg',position=(0,-0.15,0),scale=(0.5,0.1,1))
+        Button('Options',parent=self.main_menu,position=(0,-0.15,0),scale=(0.2,0.06,1),color=rgb(255,255,255,0),on_click=options_menu_btn)
+
+        Entity(parent=self.main_menu, model='quad',texture='exit_btn.jpg',position=(0,-0.3,0),scale=(0.5,0.1,1))
+        Button('Exit',parent=self.main_menu,position=(0,-0.3,0),scale=(0.2,0.06,1),color=rgb(255,255,255,0),on_click=quit_game)
         # [MAIN MENU] WINDOW END
+
+        # [CHOOSE CHACRACTER] WINDOW START
+        Entity(parent=self.choose_menu,model='quad',texture='title.png',position=(0,0.4),scale=(0.9,0.2))
+        Text("CHOOSE CHACRACTER",parent=self.choose_menu,position=(-0.2,0.42,0), scale=1.5,color=color.black)
+
+        def play_back_btn_action():
+            isSounding('mouse_click')
+            hide(self.choose_menu)
+            hide(self.chac1, self.chac2, self.chac3,self.chac4, self.chac5)
+            show(self.bg,self.main_menu)
+
+        Entity(parent=self.choose_menu,model='quad',texture='back_btn.jpg',position=(-0.76,0.44),scale=(0.5,0.3))
+        Button(parent=self.choose_menu, position=(-0.8,0.4,0),scale=(0.1,0.05,1),color=rgb(255,255,255,0),on_click=play_back_btn_action)
+        # [CHOOSE CHOOSE] WINDOW END
 
         # [OPTIONS MENU] WINDOW START
         # Title of our menu
-        Text("OPTIONS MENU", parent=self.options_menu, y=0.4, x=0, origin=(0, 0))
+        Entity(parent=self.options_menu,model='quad',texture='title.png',position=(0,0.4,0),scale=(0.8,0.2,1))
+        Entity(parent=self.options_menu,model='quad',texture='title_bg.png',position=(0,0,0),scale=(0.8,0.5,1))
+        Text("OPTIONS MENU",parent=self.options_menu,position=(-0.12,0.42,0), scale=1.5,color=color.black)
+
+        AudioSwitch(self.options_menu,self.a)
 
         # Reference of our action function for back button
         def options_back_btn_action():
-            show(self.bg, self.main_menu)
+            isSounding('mouse_click')
+            show(self.main_menu)
             hide(self.options_menu)
 
         # Button
-        Button("Back", parent=self.options_menu, y=-0.3, scale=(0.1, 0.05), color=rgb(50, 50, 50),
-               on_click=options_back_btn_action)
+        Entity(parent=self.options_menu,model='quad',texture='back_btn2.png',position=(-0.03,-0.3,0),scale=(0.5,0.5,1))
+        Button('Back',parent=self.options_menu, position=(0,-0.33,0),scale=(0.15,0.05,1),text_color=color.black,color=rgb(255,255,255,0),on_click=options_back_btn_action)
         # [OPTIONS MENU] WINDOW END
         
         # Here we can change attributes of this class when call this class
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def input(self,key):                                 # input
         # move left if hold arrow left
         if mouse.left:
             if time.time() - self.player.reload > 1:
@@ -194,4 +224,4 @@ class MainMenu(Entity):
                     self.canno.enabled = True
                 else:
                     self.canno.enabled = False
-
+        

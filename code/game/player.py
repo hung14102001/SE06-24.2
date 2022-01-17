@@ -23,23 +23,25 @@ class Player(Entity):
         self.healthbar_pos = Vec2(0, -0.1)
         self.healthbar_size = Vec2(0.2, 0.02)
         self.healthbar_bg = Entity(
-            parent=self,
+            parent=camera.ui,
             model="quad",
             color= color.rgb(255, 0, 0),
             position=self.healthbar_pos,
             scale=self.healthbar_size,
+            enabled=False
            
         )
         self.healthbar = Entity(
-            parent=self,
+            parent=camera.ui,
             model="quad",
             color=color.rgb(0, 255, 0),
             position=self.healthbar_pos,
             scale=self.healthbar_size,
+            enabled = False
         )
         
         self.health = 100
-        self.text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0), visible=False)
+        self.text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2, position=(-0.82,0.46), visible=False)
         
     def update(self):
         angle = self.rotation_z

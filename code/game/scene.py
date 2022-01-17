@@ -2,8 +2,6 @@ from ursina import *
 from sea import Plant, Coin
 from enemy import Enemy
 
-
-
 class Scene():
     def __init__(self):
         self.coin=Coin()

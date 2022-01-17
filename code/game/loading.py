@@ -6,21 +6,21 @@ class LoadingWheel(Entity):
         self.parent = camera.ui
         self.point = Entity(parent=self, 
                             model=Circle(24, mode='point', thickness=.03), 
-                            color=color.light_gray, 
-                            y=.75, 
+                            color='#f5af42', 
+                            y=.7, 
                             scale=2, 
                             texture='circle')
         self.point2 = Entity(parent=self, 
                              model=Circle(12, mode='point', thickness=.03), 
-                             color=color.light_gray, 
-                             y=.75, 
+                             color='#f5af42', 
+                             y=.7, 
                              scale=1, 
                              texture='circle')
 
         self.scale = .025
         self.text_entity = Text(world_parent=self, 
                                 text='Loading...', 
-                                origin=(0, 0), 
+                                origin=(0,2), 
                                 color=color.light_gray)
         self.y = -.25
 
