@@ -72,27 +72,26 @@ class PlantPart(ursina.Entity):
         )
 
 class CoinPart(ursina.Entity):
-    def __init__(self, position,img):
+    def __init__(self, index, position):
+        coin = os.path.join("Coins", "coin.png")
         super().__init__(
             position=position,
             scale=1,
             model="quad",
-            texture=img,
+            texture=coin,
             collider="box"
         )
-    def update(self):
-        hitinfo = self.intersects()
-        if hitinfo.hit:
-            ursina.destroy(self)
-            # self.player.score += 1
+        self.index = index
 class Coin:
-    coin = os.path.join("Coins", "coin.png")
-    def __init__(self):
-        for x in range(0,50):
-            px = randint(-20, 20)
-            py = randint(-20, 20)
-            part = CoinPart(ursina.Vec3(px, py, 0), self.coin)
-    # text = ursina.Text(text="Score: " +str(score), color=ursina.color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
+    def __init__(self, position_list):
+        self.coin_list = {}
+        for i in position_list:
+            self.coin_list[i] = CoinPart(i, ursina.Vec2(*position_list[i]))
+        
+    def destroy_coin(self, index):
+        coin = self.coin_list[index]
+        ursina.destroy(coin)
+        del self.coin_list[index]
     
 class Plant:
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
@@ -113,10 +112,11 @@ class Restrictor(ursina.Entity):
     def __init__(self):
         super().__init__(
             model=ursina.Circle(resolution=50, mode='line'),
-            scale=(30,30),
+            scale=(40*2**.5,40*2**.5),
             color=ursina.color.rgb(0,0,0),
             text = ursina.Text(text="Time: ", color=ursina.color.rgb(0,0,0), scale = 2.5, position=(.3,0.5,0)),
         )
+        self.time = time.time()
         self.countDown = time.time() + 5
         self.restricting = False
 
@@ -129,10 +129,12 @@ class Restrictor(ursina.Entity):
                 ursina.destroy(self)
 
             elif time.time() > self.countDown:
+                print(1, time.time() - self.time, self.scale_y)
                 self.countDown += 5
                 self.restricting = False
 
         elif time.time() > self.countDown:
+            print(0, time.time() - self.time, self.scale_y)
             self.countDown += 15
             self.restricting = True
 
