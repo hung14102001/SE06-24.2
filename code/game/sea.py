@@ -8,8 +8,9 @@ from ursina import collider
 # self.collider = BoxCollider(self, size=Vec3(1, 2, 1))
 
 class SeaPart(ursina.Entity):
-    def __init__(self, position):
+    def __init__(self, parent,position):
         super().__init__(
+            parent=parent,
             position=position,
             scale=2,
             model="quad",
@@ -18,8 +19,9 @@ class SeaPart(ursina.Entity):
         self.texture.filtering = None
 
 class SoilPart(ursina.Entity):
-    def __init__(self, position):
+    def __init__(self,parent,position):
         super().__init__(
+            parent=parent,
             position=position,
             scale=2,
             model="quad",
@@ -29,8 +31,9 @@ class SoilPart(ursina.Entity):
         self.texture.filtering = None
 
 class IslandPart(ursina.Entity):
-    def __init__(self, position,img):
+    def __init__(self,parent,position,img):
         super().__init__(
+            parent=parent,
             position=position,
             scale=1,
             model="quad",
@@ -39,30 +42,33 @@ class IslandPart(ursina.Entity):
         )
         # self.texture.filtering = None
 
-class Island2x2:
+class Island2x2(ursina.Entity):
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
-    def __init__(self, position_x, position_y):
+    def __init__(self, parent, position_x, position_y):
+        super().__init__(parent=parent)
         for j in range(0, 2):
             for i in range(0, 2):
-                part = IslandPart(ursina.Vec3(position_x + i, position_y - j,0), self.tiles[16*j + i+4])
+                part = IslandPart(self,ursina.Vec3(position_x + i, position_y - j,0), self.tiles[16*j + i+4])
 
 
-class Island4x4:
+class Island4x4(ursina.Entity):
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
-    def __init__(self, position_x, position_y):
+    def __init__(self, parent, position_x, position_y):
+        super().__init__(parent=parent)
         for j in range(0, 4):
             for i in range(0, 4):
-                part = IslandPart(ursina.Vec3(position_x + i, position_y - j,0), self.tiles[16*((j+1)//2) + ((i+1)//2) + 1 ])
+                part = IslandPart(self,ursina.Vec3(position_x + i, position_y - j,0), self.tiles[16*((j+1)//2) + ((i+1)//2) + 1 ])
             
-class Island6x6:
+class Island6x6(ursina.Entity):
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
-    def __init__(self, position_x, position_y):
+    def __init__(self, parent, position_x, position_y):
+        super().__init__(parent=parent)
         for j in range(0, 6):
                 for i in range(0, 6):
-                    part = IslandPart(ursina.Vec3(position_x + i, position_y - j,0), self.tiles[16*((j+1)//2) + ((i+1)//2) + 6])
+                    part = IslandPart(self,ursina.Vec3(position_x + i, position_y - j,0), self.tiles[16*((j+1)//2) + ((i+1)//2) + 6])
             
 class PlantPart(ursina.Entity):
-    def __init__(self, position,img):
+    def __init__(self,position,img):
         super().__init__(
             position=position,
             scale=1,
@@ -72,28 +78,29 @@ class PlantPart(ursina.Entity):
         )
 
 class CoinPart(ursina.Entity):
-    def __init__(self, index, position):
-        coin = os.path.join("Coins", "coin.png")
+    def __init__(self,position,img):
         super().__init__(
             position=position,
             scale=1,
             model="quad",
-            texture=coin,
+            texture=img,
             collider="box"
         )
-        self.index = index
-class Coin:
-    def __init__(self, position_list):
-        self.coin_list = {}
-        for i in position_list:
-            self.coin_list[i] = CoinPart(i, ursina.Vec2(*position_list[i]))
-        
-    def destroy_coin(self, index):
-        coin = self.coin_list[index]
-        ursina.destroy(coin)
-        del self.coin_list[index]
+    def update(self):
+        hitinfo = self.intersects()
+        if hitinfo.hit:
+            ursina.destroy(self)
+            # self.player.score += 1
+class Coin(ursina.Entity):
+    coin = os.path.join("Coins", "coin.png")
+    def __init__(self):
+        for x in range(0,50):
+            px = randint(-20, 20)
+            py = randint(-20, 20)
+            part = CoinPart(ursina.Vec3(px, py, 0), self.coin)
+    # text = ursina.Text(text="Score: " +str(score), color=ursina.color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
     
-class Plant:
+class Plant(ursina.Entity):
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
     coin = os.path.join("Coins", "coin.png")
     def __init__(self):
@@ -109,14 +116,14 @@ class Plant:
                 part = PlantPart(ursina.Vec3(px+i, py, 0), self.tiles[87+i])
 
 class Restrictor(ursina.Entity):
-    def __init__(self):
+    def __init__(self,parent):
         super().__init__(
+            parent=parent,
             model=ursina.Circle(resolution=50, mode='line'),
-            scale=(40*2**.5,40*2**.5),
+            scale=(30,30),
             color=ursina.color.rgb(0,0,0),
-            text = ursina.Text(text="Time: ", color=ursina.color.rgb(0,0,0), scale = 2.5, position=(.3,0.5,0)),
+            text = ursina.Text(text="Time: ", parent=parent, color=ursina.color.rgb(0,0,0), scale = 2.5, position=(.3,0.5,0)),
         )
-        self.time = time.time()
         self.countDown = time.time() + 5
         self.restricting = False
 
@@ -129,58 +136,63 @@ class Restrictor(ursina.Entity):
                 ursina.destroy(self)
 
             elif time.time() > self.countDown:
-                print(1, time.time() - self.time, self.scale_y)
                 self.countDown += 5
                 self.restricting = False
 
         elif time.time() > self.countDown:
-            print(0, time.time() - self.time, self.scale_y)
             self.countDown += 15
             self.restricting = True
 
 
-class Sea:
+class Sea(ursina.Entity):
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]    
     def __init__(self):
+        super().__init__(
+            enabled=False
+        )
         for x in range(-20, 20, 2):
             for y in range(-20, 20, 2):
-                part = SeaPart(ursina.Vec3(x, y, 0.1))
+                part = SeaPart(self,ursina.Vec3(x, y, 0.1))
+        
         for x in range(-30, 30, 2):
             for y in range(-30, 30, 2):
                 if x >= 20 or x <=-20 or y <= -20 or y >= 20:
-                    part = SoilPart(ursina.Vec3(x, y, 0))
+                    part = SoilPart(self,ursina.Vec3(x, y, 0))
+                   
         # dọc dưới
-        island = Island2x2(-0.5, -15.5)
-        island = Island2x2(-0.5, -17.5)
-        island = Island2x2(-0.5, -13.5)
-        island = Island2x2(-0.5, -11.5)
+        island = Island2x2(self, -0.5, -15.5)
+        island = Island2x2(self, -0.5, -17.5)
+        island = Island2x2(self, -0.5, -13.5)
+        island = Island2x2(self, -0.5, -11.5)
         # dọc trên
-        island = Island2x2(-0.5, 18.5)
-        island = Island2x2(-0.5, 16.5)
-        island = Island2x2(-0.5, 14.5)
-        island = Island2x2(-0.5, 12.5)
+        island = Island2x2(self, -0.5, 18.5)
+        island = Island2x2(self, -0.5, 16.5)
+        island = Island2x2(self, -0.5, 14.5)
+        island = Island2x2(self, -0.5, 12.5)
 
         # ngang trái
-        island = Island2x2(-18.5, 0.5)
-        island = Island2x2(-16.5, 0.5)
-        island = Island2x2(-14.5, 0.5)
-        island = Island2x2(-12.5, 0.5)
+        island = Island2x2(self, -18.5, 0.5)
+        island = Island2x2(self, -16.5, 0.5)
+        island = Island2x2(self, -14.5, 0.5)
+        island = Island2x2(self, -12.5, 0.5)
 
         # ngang phải
-        island = Island2x2(11.5, 0.5)
-        island = Island2x2(13.5, 0.5)
-        island = Island2x2(15.5, 0.5)
-        island = Island2x2(17.5, 0.5)
+        island = Island2x2(self, 11.5, 0.5)
+        island = Island2x2(self, 13.5, 0.5)
+        island = Island2x2(self, 15.5, 0.5)
+        island = Island2x2(self, 17.5, 0.5)
 
         # giữa
-        island = Island6x6(-2.5,2.5)
+        island = Island6x6(self, -2.5,2.5)
         
         # 4 góc
-        island = Island4x4(-8.5,-5.5)
-        island = Island4x4(-8.5,8.5)
-        island = Island4x4(5.5,-5.5)
-        island = Island4x4(5.5,8.5)
+        island = Island4x4(self, -8.5,-5.5)
+        island = Island4x4(self, -8.5,8.5)
+        island = Island4x4(self, 5.5,-5.5)
+        island = Island4x4(self, 5.5,8.5)
+       
+
 
         # đá 
         # island = IslandPart(ursina.Vec3(0,0,0), self.tiles[0])
-        Restrictor()
+        Restrictor(self)
