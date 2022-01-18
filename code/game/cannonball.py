@@ -1,30 +1,29 @@
 import os, math
-from ursina import Entity, collider, destroy, HotReloader
+from enemy import Enemy
+from ursina import Entity, collider, destroy
 class CannonBall(Entity):
-    def __init__(self,player,  px, py, mouse_x, mouse_y):
+    def __init__(self, player, position, rediffX, rediffY, damage, network, enemy=None):
 
         super().__init__(
             model='quad',
             texture=os.path.join("Cannon", "cannonBall.png"),
-            x=px,
-            y=py,
+            position=position,
             z=0,
             scale_x=0.18,
             scale_y=0.18,
             collider = 'sphere'
         )
         self.player = player
+        self.enemy = enemy
+        self.network = network
+        self.damage = damage
 
-        self.speed = 0.2
-        self.quater = 0
-        self.mouse_x = mouse_x
-        self.mouse_y = mouse_y
+        self.speed = 0.3
 
-        self.rediffX = self.mouse_x
-        self.rediffY = self.mouse_y
-
-        self.rad = math.atan(self.rediffY/self.rediffX)
-        destroy(self,delay=1)
+        self.rediffX = rediffX
+        self.rediffY = rediffY
+        self.rad = math.atan(rediffY/rediffX)
+        destroy(self,delay=10)
         
     def update(self):
         if self.rediffX < 0:
@@ -33,6 +32,15 @@ class CannonBall(Entity):
         else:
             self.x += math.cos(self.rad)*self.speed
             self.y += math.sin(self.rad)*self.speed
-        hitinfo = self.intersects(ignore=(self,self.player))
+
+        if self.enemy:
+            hitinfo = self.intersects(ignore=(self, self.enemy))
+        else:
+            hitinfo = self.intersects(ignore=(self, self.player))
         if hitinfo.hit:
+            if not self.enemy:
+                if isinstance(hitinfo.entity, Enemy):
+                    hitinfo.entity.health -= self.damage
+                    self.network.send_health(hitinfo.entity)
+
             destroy(self)

@@ -1,5 +1,4 @@
 from ursina import camera, Entity, Vec2, color
-
 class MiniMap(Entity):
     def __init__(self, player, sea):
         super().__init__(
@@ -7,8 +6,7 @@ class MiniMap(Entity):
             parent=camera.ui,
             model="quad",
             position=Vec2(0.74, 0.35),
-            color=color.rgb(161, 234, 255),
-            enabled=False
+            color=color.rgb(161, 234, 255)
         )
 
         self.player = player
@@ -17,14 +15,11 @@ class MiniMap(Entity):
         green = color.rgb(0, 255, 0)
         bistre = color.rgb(205, 133, 63)
         goldenbrown = color.rgb(205, 133, 63)
-        
         self.playerRep = Entity(
             parent=self,
             scale=.05,
             model='circle',
-            #position=(self.player.x/40, self.player.y/40),
-            x = self.player.x/40, 
-            y = self.player.y/40,
+            position=(player.x/40,player.y/40),
             color=red
         )
         self.boRep = Entity(
@@ -109,7 +104,6 @@ class MiniMap(Entity):
             position=(0,0,-0.1),
             color=green
         )
-    
     def update(self):
         self.playerRep.x = self.player.x/40
         self.playerRep.y = self.player.y/40
