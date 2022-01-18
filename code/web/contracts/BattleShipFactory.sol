@@ -14,6 +14,7 @@ contract BattleShipFactory is Ownable {
     event NewBattleShip(uint256 shipId);
 
     struct BattleShip {
+        uint id;
         uint shipType;
         uint256 exp;
         uint32 level;
@@ -57,11 +58,11 @@ contract BattleShipFactory is Ownable {
         uint dmg = _generateRandomNumber("dmg", shipType);
         uint hp = _generateRandomNumber("hp", shipType) + dmg*3;
 
-        battleShips.push(BattleShip(shipType, 0, 1, hp, dmg));
-
         uint id = battleShips.length;
         ownerShipCount[msg.sender] += 1;
         battleShipToOwner[id] = msg.sender;
+        battleShips.push(BattleShip(id, shipType, 0, 1, hp, dmg));
+
 
         AztecToken(tokenAddress).burn(msg.sender, lootboxPrice);
 
