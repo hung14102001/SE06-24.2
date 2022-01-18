@@ -22,7 +22,7 @@ class MainMenu(Entity):
             ignore_paused=True)
 
         # Create empty entities that will be parents of our menus content
-        self.title = Entity(parent=self,model='quad',texture='welcome2.jpg',position=(0,0.2),scale=1) 
+        #self.title = Entity(parent=self,model='quad',texture='welcome2.jpg',position=(0,0.2),scale=1) 
         self.bg = Sprite('Image/bg2.png')
         self.main_menu = Entity(parent=self, enabled=True)
         self.choose_menu = Entity(parent=self, enabled=False)
