@@ -1,9 +1,11 @@
-from ursina import Entity, Vec3, Vec2, color, collider, destroy
+from ursina import Entity, Vec3, Vec2
+import os
+
 
 class Enemy(Entity):
     def __init__(self, info):
-        if info['ship'] == 1:
-            img_path = './Ships/ship_1.png'
+        self.ship = info['ship'] + 1
+        img_path = os.path.join("Ships", f"ship_{self.ship}_1.png")
         super().__init__(
             position=Vec2(*info['position']),
             model="quad",
@@ -12,33 +14,21 @@ class Enemy(Entity):
             scale=Vec3(1, 2, 0)
         )
 
-        self.name_tag = Entity(
-            parent=self,
-            text=info['username'],
-            position=Vec3(0, 1.3, -1),
-            scale=Vec2(5, 3),
-            billboard=True,
-            origin=Vec2(0, 0)
-        )
-
-        self.healthbar = Entity(
-            parent=self,
-            model="quad",
-            position=Vec3(0, -.3, -1),
-            color=color.rgb(0, 255, 0),
-            scale=Vec2(1.5,.1)
-        )
-
-        self.maxHealth = 100
-        self.health = float(info['health'])
+        self.damage = float(info['damage'])
+        self.maxHealth = float(info['health'])
+        self.health = self.maxHealth
         self.id = info['id']
 
     def update(self):
+        if not hasattr(self, 'health'):
+            return
         try:
-            while self.health == None:
-                continue
             if self.health <= 0:
-                pass
-            self.healthbar.scale_x = self.health / self.maxHealth * 1.5
+                self.texture = os.path.join("Ships", f"ship_{self.ship}_4.png")
+            elif self.health <= self.maxHealth*.3:
+                self.texture = os.path.join("Ships", f"ship_{self.ship}_3.png")
+            elif self.health <= self.maxHealth*.7:
+                self.texture = os.path.join("Ships", f"ship_{self.ship}_2.png")
+
         except AttributeError as e:
             print(e)

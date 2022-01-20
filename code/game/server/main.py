@@ -11,7 +11,7 @@ import threading
 # ADDR = "127."
 PORT = 8000
 MAX_MATCHES = 3
-MAX_PLAYERS = 3
+MAX_PLAYERS = 4
 MSG_SIZE = 2048
 COIN_AMOUNT = 10
 
@@ -22,14 +22,13 @@ s.listen(MAX_PLAYERS*MAX_MATCHES)
 
 matches = {}
 
+
 def generate_id(_list: dict, _max: int):
     """
     Generate a unique identifier
-
     Args:
         _list (dict): dictionary of existing players/matches
         _max (int): maximum number of players/matches allowed
-
     Returns:
         str: the unique identifier
     """
@@ -39,11 +38,11 @@ def generate_id(_list: dict, _max: int):
         if unique_id not in _list:
             return unique_id
 
+
 def handle_messages(match_id: str, player_id: int):
     players = matches[match_id]['players']
     client_info = players[player_id]
     conn: socket.socket = client_info["socket"]
-    username = client_info["username"]
 
     while True:
         try:
@@ -62,19 +61,17 @@ def handle_messages(match_id: str, player_id: int):
             print(e)
             continue
 
-        if time.time() > matches[match_id]['restrictor'] + 4*20:
-            print('end de')
-            matches[match_id]['ended'] = True
-
         if msg_json["object"] == "player":
             players[player_id]["position"] = msg_json["position"]
             players[player_id]["direction"] = msg_json["direction"]
             players[player_id]["health"] = msg_json["health"]
 
         if msg_json['object'] == 'score':
-            if len([0 for p in players if players[p]['health'] <= 0]) >= MAX_PLAYERS - 1:
+            alives = len([0 for p in players if players[p]['health'] > 0])
+            if (len(players) > 1 and alives < 2) or alives < 1:
                 print(f'Game {match_id} has ended')
                 matches[match_id]['ended'] = True
+
 
         if msg_json['object'] == 'coin_update':
             index = msg_json['coin_id']
@@ -87,18 +84,14 @@ def handle_messages(match_id: str, player_id: int):
                 player_info = players[p_id]
                 player_conn: socket.socket = player_info["socket"]
 
-
                 if p_id != player_id:
                     try:
                         player_conn.sendall(msg_decoded.encode("utf8"))
                     except OSError:
                         pass
                 if match_id not in matches or matches[match_id]['ended']:
-                    player_conn.send(json.dumps({'object': 'end_game'}).encode('utf8'))
-
-        # if match_id not in matches or matches[match_id]['ended']:
-        #     break
-
+                    player_conn.send(json.dumps(
+                        {'object': 'end_game'}).encode('utf8'))
 
     players[player_id]['left'] = True
     # Tell other players about player leaving
@@ -107,47 +100,49 @@ def handle_messages(match_id: str, player_id: int):
             player_info = players[p_id]
             player_conn: socket.socket = player_info["socket"]
             try:
-                player_conn.send(json.dumps({"id": player_id, "object": "player", "joined": False, "left": True}).encode("utf8"))
+                player_conn.send(json.dumps(
+                    {"id": player_id, "object": "player", "joined": False, "left": True}).encode("utf8"))
             except OSError:
                 pass
 
-    print(f"Player {username} with ID {player_id} has left the game {match_id}...")
+    print(
+        f"Player with ID {player_id} has left the game {match_id}...")
 
-    if players[player_id]['health'] > 0: del players[player_id]
+    if players[player_id]['health'] > 0:
+        del players[player_id]
+
     if match_id in matches:
         if len(matches[match_id]['players']) < 1:
             matches[match_id]['ended'] = True
-        if matches[match_id]['ended']: 
+        if len([0 for p in players if players[p]['health'] > 0]) <= 0:
+            matches[match_id]['ended'] = True
+        if matches[match_id]['ended']:
             del matches[match_id]
+            print(f'Game {match_id} has ended')
 
     conn.close()
 
+
 def initPlayerInfo(new_player_id, info: str):
-    msg_json={}
+    msg_json = {}
     try:
         msg_json = json.loads(info)
     except Exception as e:
         print(e)
 
-    usrname = msg_json["username"]
     heath = msg_json["health"]
     damage = msg_json["damage"]
     ship = msg_json["ship"]
 
     x = random.randint(-19, 19)
     y = random.randint(-19, 19)
-    # if len(players) > 0:
-    #     while (x, y) == any(players.):
-    #         x = random.randint(-19, 19)
-    #         y = random.randint(-19, 19)
 
     position = (x, y)
     res = {
         'player_id': new_player_id,
-        'username': usrname, 
-        'position': position, 
-        'health': heath, 
-        'damage': damage, 
+        'position': position,
+        'health': heath,
+        'damage': damage,
         'ship': ship,
     }
 
@@ -179,10 +174,9 @@ def main():
         init_info = initPlayerInfo(new_player_id, recv_info)
 
         new_player_info = {
-            "socket": conn, 
-            "username": init_info['username'], 
-            "position": init_info['position'], 
-            "direction": 0, 
+            "socket": conn,
+            "position": init_info['position'],
+            "direction": 0,
             "health": init_info['health'],
             "damage": init_info['damage'],
             "ship": init_info['ship'],
@@ -194,7 +188,7 @@ def main():
             coin_x = [random.randint(-19, 19) for i in range(COIN_AMOUNT)]
             coin_y = [random.randint(-19, 19) for i in range(COIN_AMOUNT)]
             coins_pos = [*zip(coin_x, coin_y)]
-            coins_pos = {str(i) : coins_pos[i] for i in range(COIN_AMOUNT)}
+            coins_pos = {str(i): coins_pos[i] for i in range(COIN_AMOUNT)}
 
             matches[new_match_id] = {
                 'ended': False,
@@ -202,7 +196,7 @@ def main():
                 'coins': coins_pos,
                 'players': {}
             }
-        
+
         matches[new_match_id]['players'][new_player_id] = new_player_info
 
         send_info = {
@@ -213,13 +207,9 @@ def main():
         }
         conn.send(json.dumps(send_info).encode('utf8'))
 
-        # conn.send(json.dumps(matches[new_match_id]['coins']).encode('utf8'))
-        # conn.send(new_player_id.encode("utf8"))
-        # conn.send(json.dumps(new_player_info['position']).encode('utf8'))
-
         # Tell existing players about new player
         players = matches[new_match_id]['players']
-        
+
         for player_id in players:
             if player_id != new_player_id:
                 player_info = players[player_id]
@@ -229,10 +219,9 @@ def main():
                     player_conn.sendall(json.dumps({
                         "id": new_player_id,
                         "object": "player",
-                        "username": new_player_info["username"],
                         "position": new_player_info["position"],
                         "health": new_player_info["health"],
-                        "damage": new_player_info['damage'],
+                        "damage": new_player_info["damage"],
                         "ship": new_player_info['ship'],
                         "joined": True,
                         "left": new_player_info['left']
@@ -250,10 +239,9 @@ def main():
                     conn.sendall(json.dumps({
                         "id": player_id,
                         "object": "player",
-                        "username": player_info["username"],
                         "position": player_info["position"],
                         "health": player_info["health"],
-                        "damage": player_info['damage'],
+                        "damage": player_info["damage"],
                         "ship": player_info['ship'],
                         "joined": True,
                         "left": False
@@ -262,12 +250,13 @@ def main():
                 except OSError:
                     pass
 
-
         # Start thread to receive messages from client
-        msg_thread = threading.Thread(target=handle_messages, args=(new_match_id, new_player_id,), daemon=True)
+        msg_thread = threading.Thread(target=handle_messages, args=(
+            new_match_id, new_player_id,), daemon=True)
         msg_thread.start()
 
-        print(f"New connection from {addr}, assigned ID: {new_match_id, new_player_id}...")
+        print(
+            f"New connection from {addr}, assigned ID: {new_match_id, new_player_id}...")
 
 
 if __name__ == "__main__":

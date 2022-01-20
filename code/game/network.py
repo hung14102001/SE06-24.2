@@ -43,23 +43,13 @@ class Network:
         self.restrictor = info['restrictor']
         self.coinPosition = info['coins']
 
-        # initPosition = self.client.recv(self.recv_size).decode("utf8")
-        # self.initPosition = json.loads(initPosition)
-
-        # coinPosition = self.client.recv(self.recv_size).decode('utf8')
-        # self.coinPosition = json.loads(coinPosition)
-
-    # def getInitPosition(self):
-    #     x = float(self.initPosition[0])
-    #     y = float(self.initPosition[1])
-    #     return (x, y)
-
     def receive_info(self):
+        if not self.client:
+            return
         try:
-
             msg = self.client.recv(self.recv_size)
         except socket.error as e:
-            print(e)
+            return
 
         if not msg:
             return None
@@ -67,7 +57,7 @@ class Network:
         msg_decoded = msg.decode("utf8")
 
         msg_json = [json.loads(e + '}') for e in msg_decoded.split('}')[:-1]]
-        
+
         return msg_json
 
     def send_player(self, player: Player):
@@ -104,11 +94,11 @@ class Network:
         except socket.error as e:
             print(e)
 
-    def send_health(self, enemy: Enemy):
+    def send_health(self, player):
         health_info = {
             "object": "health_update",
-            "id": enemy.id,
-            "health": enemy.health
+            "id": player.id,
+            "health": player.health
         }
 
         health_info_encoded = json.dumps(health_info).encode("utf8")
@@ -143,6 +133,6 @@ class Network:
         except socket.error as e:
             print(e)
 
-
     def close(self):
+        # self.client.shutdown(socket.SHUT_RDWR)
         self.client.close()
