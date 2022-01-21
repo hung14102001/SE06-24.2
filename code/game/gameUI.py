@@ -2,45 +2,32 @@ from ursina import *
 
 
 class GameUI (Entity):
-    def __init__(self, player, restrictor):
+    def __init__(self, player):
         super().__init__()
         self.player = player
         self.minimap = MiniMap()
 
         self.healthBar = HealthBar()
-        self.scoreText = Text(
+        self.text = Text(
             text="Score: 0 ",
             color=color.rgb(0, 0, 0),
             scale=2.5,
             position=(-0.8, 0.5, 0)
         )
-        self.timeText = Text(
-            text="Time: 5",
-            color=color.rgb(0, 0, 0),
-            scale=2.5,
-            position=(0, 0.5, 0)
-        )
-        self.restrictor = restrictor
 
     def update(self):
         if self.minimap:
             self.minimap.playerRep.x = self.player.x/40
             self.minimap.playerRep.y = self.player.y/40
-            if self.restrictor:
-                self.minimap.restrictorRep.scale = (self.restrictor.scale)/40
-                self.timeText.text = "Time: " + \
-                    str(int(self.restrictor.countDown - time.time()))
 
         if self.healthBar:
             self.healthBar.healthbar.scale_x = self.healthBar.healthbar_size.x * \
                 self.player.health/self.player.maxHealth
-            self.scoreText.text = "Score: " + str(self.player.score)
+            self.text.text = "Score: " + str(self.player.score)
 
     def destroySelf(self):
-        destroy(self.scoreText)
-        del self.scoreText
-        destroy(self.timeText)
-        del self.timeText
+        destroy(self.text)
+        del self.text
         destroy(self.minimap)
         del self.minimap
         destroy(self.healthBar.healthbar_bg)
@@ -86,13 +73,6 @@ class MiniMap(Entity):
         green = color.rgb(0, 255, 0)
         bistre = color.rgb(205, 133, 63)
         goldenbrown = color.rgb(205, 133, 63)
-
-        self.restrictorRep = Entity(
-            parent=self,
-            model=Circle(resolution=30, mode='line'),
-            scale=(1, 1),
-            color=black,
-        )
 
         self.playerRep = Entity(
             parent=self,
@@ -180,6 +160,6 @@ class MiniMap(Entity):
             parent=self,
             scale=(.1, .1),
             model='quad',
-            position=(0, 0, 0),
+            position=(0, 0, -0.1),
             color=green
         )

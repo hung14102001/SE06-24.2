@@ -168,10 +168,10 @@ class Restrictor(ursina.Entity):
         if current_time > 5:
             self.restricting = True
             self.countDown = time.time() + 20 - current_time
-            self.scale -= current_time - 10
+            self.scale -= current_time - 5
         else:
             self.restricting = False
-            self.countDown = time.time() + 15 - current_time
+            self.countDown = time.time() + 5 - current_time
 
     def update(self):
         if self.restricting:
