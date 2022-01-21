@@ -5,7 +5,7 @@ import os
 # display the background
 app = Ursina()
 
-window.title = 'My game'                # The window title
+window.title = 'Pirate Battle Royale'                # The window title
 
 # Custom window
 window.borderless = False               # Show a border

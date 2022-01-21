@@ -11,7 +11,7 @@ import threading
 # ADDR = "127."
 PORT = 8000
 MAX_MATCHES = 3
-MAX_PLAYERS = 3
+MAX_PLAYERS = 4
 MSG_SIZE = 2048
 COIN_AMOUNT = 10
 
@@ -67,9 +67,11 @@ def handle_messages(match_id: str, player_id: int):
             players[player_id]["health"] = msg_json["health"]
 
         if msg_json['object'] == 'score':
-            if len([0 for p in players if players[p]['health'] > 0]) <= 0:
+            alives = len([0 for p in players if players[p]['health'] > 0])
+            if (len(players) > 1 and alives < 2) or alives < 1:
                 print(f'Game {match_id} has ended')
                 matches[match_id]['ended'] = True
+
 
         if msg_json['object'] == 'coin_update':
             index = msg_json['coin_id']
@@ -117,8 +119,6 @@ def handle_messages(match_id: str, player_id: int):
         if matches[match_id]['ended']:
             del matches[match_id]
             print(f'Game {match_id} has ended')
-        else:
-            print(players)
 
     conn.close()
 
