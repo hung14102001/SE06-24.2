@@ -7,11 +7,11 @@ from sea import CoinPart
 class Player(Entity):
     def __init__(self, position, info, network, coins, sound):
 
-        self.ship = info['type'] + 1
+        self.ship = info["type"] + 1
 
         super().__init__(
-            model='quad',
-            collider='box',
+            model="quad",
+            collider="box",
             texture=os.path.join("Ships", f"ship_{self.ship}_1.png"),
             position=position,
             score=0,
@@ -28,8 +28,8 @@ class Player(Entity):
         self.coins = coins
         self.a = sound
 
-        self.damage = float(info['dmg'])
-        self.maxHealth = float(info['hp'])
+        self.damage = float(info["dmg"])
+        self.maxHealth = float(info["hp"])
         self.health = self.maxHealth
         self.death_shown = False
 
@@ -43,38 +43,38 @@ class Player(Entity):
             increaseY = 0
             decreaseX = 0
             decreaseY = 0
-            if held_keys['up arrow'] or held_keys['w']:
+            if held_keys["up arrow"] or held_keys["w"]:
                 increaseY = self.speed
                 angle = 180
 
-            if held_keys['down arrow'] or held_keys['s']:
+            if held_keys["down arrow"] or held_keys["s"]:
                 decreaseY = self.speed
                 angle = 0
-            if held_keys['left arrow'] or held_keys['a']:
+            if held_keys["left arrow"] or held_keys["a"]:
                 decreaseX = self.speed
                 angle = 90
-                if held_keys['up arrow'] or held_keys['w']:
+                if held_keys["up arrow"] or held_keys["w"]:
                     angle = 135
                     decreaseX = self.speed / 1.414
                     increaseY = self.speed / 1.414
-                elif held_keys['down arrow'] or held_keys['s']:
+                elif held_keys["down arrow"] or held_keys["s"]:
                     angle = 45
                     decreaseX = self.speed / 1.414
                     decreaseY = self.speed / 1.414
 
-            if held_keys['right arrow'] or held_keys['d']:
+            if held_keys["right arrow"] or held_keys["d"]:
                 increaseX = self.speed
                 angle = -90
-                if held_keys['up arrow'] or held_keys['w']:
+                if held_keys["up arrow"] or held_keys["w"]:
                     angle = -135
                     increaseX = self.speed / 1.414
                     increaseY = self.speed / 1.414
 
-                elif held_keys['down arrow'] or held_keys['s']:
+                elif held_keys["down arrow"] or held_keys["s"]:
                     angle = -45
                     increaseX = self.speed / 1.414
                     decreaseY = self.speed / 1.414
-            if held_keys['g']:
+            if held_keys["g"]:
                 camera.x = self.x
                 camera.y = self.y
                 camera.z = -50
@@ -83,9 +83,9 @@ class Player(Entity):
             camera.y = self.y
             camera.x = self.x
 
-            if self.health <= self.maxHealth*.3:
+            if self.health <= self.maxHealth * 0.3:
                 self.texture = os.path.join("Ships", f"ship_{self.ship}_3.png")
-            elif self.health <= self.maxHealth*.7:
+            elif self.health <= self.maxHealth * 0.7:
                 self.texture = os.path.join("Ships", f"ship_{self.ship}_2.png")
 
             try:
@@ -96,7 +96,7 @@ class Player(Entity):
                 hitinfo = self.intersects()
                 if hitinfo.hit:
                     if isinstance(hitinfo.entity, CoinPart):
-                        self.isSounding('pick_item')
+                        self.isSounding("pick_item")
                         if not self.death_shown:
                             self.score += 1
                         index = hitinfo.entity.index
@@ -106,13 +106,13 @@ class Player(Entity):
 
                     x = hitinfo.point.x
                     y = hitinfo.point.y
-                    if x == .5:
+                    if x == 0.5:
                         decreaseX = 0
-                    if x == -.5:
+                    if x == -0.5:
                         increaseX = 0
-                    if y == .5:
+                    if y == 0.5:
                         decreaseY = 0
-                    if y == -.5:
+                    if y == -0.5:
                         increaseY = 0
 
             self.x = self.x + increaseX - decreaseX

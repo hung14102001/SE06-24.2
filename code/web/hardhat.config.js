@@ -1,5 +1,8 @@
 require("@nomiclabs/hardhat-waffle");
 
+const fs = require('fs')
+const privateKey = fs.readFileSync('.secret').toString()
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -26,8 +29,8 @@ module.exports = {
       chainId: 1337
     },
     ropsten: {
-      url: 'https://ropsten.infura.io/v3/6d3df8badba94fd78e849a7d703fb914',
-      accounts: [`0x7eb88497144c3296ce8405a214bd7235501ea551ee5a4da242870d39708e50fa`]
+      url: "https://ropsten.infura.io/v3/6d3df8badba94fd78e849a7d703fb914",
+      accounts: [privateKey]
     }
   }
 };

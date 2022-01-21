@@ -10,7 +10,7 @@ class SeaPart(ursina.Entity):
             position=position,
             scale=2,
             model="quad",
-            texture=os.path.join("Tiles", "tile_73.png")
+            texture=os.path.join("Tiles", "tile_73.png"),
         )
         self.texture.filtering = None
 
@@ -22,7 +22,7 @@ class SoilPart(ursina.Entity):
             scale=2,
             model="quad",
             texture=os.path.join("Tiles", "tile_18.png"),
-            collider="box"
+            collider="box",
         )
         self.texture.filtering = None
 
@@ -30,11 +30,7 @@ class SoilPart(ursina.Entity):
 class IslandPart(ursina.Entity):
     def __init__(self, position, img):
         super().__init__(
-            position=position,
-            scale=1,
-            model="quad",
-            texture=img,
-            collider="box"
+            position=position, scale=1, model="quad", texture=img, collider="box"
         )
         # self.texture.filtering = None
 
@@ -46,8 +42,10 @@ class Island2x2:
         self.entities = []
         for j in range(0, 2):
             for i in range(0, 2):
-                part = IslandPart(ursina.Vec3(
-                    position_x + i, position_y - j, 0), self.tiles[16*j + i+4])
+                part = IslandPart(
+                    ursina.Vec3(position_x + i, position_y - j, 0),
+                    self.tiles[16 * j + i + 4],
+                )
                 self.entities.append(part)
 
     def destroySelf(self):
@@ -62,8 +60,10 @@ class Island4x4:
         self.entities = []
         for j in range(0, 4):
             for i in range(0, 4):
-                part = IslandPart(ursina.Vec3(
-                    position_x + i, position_y - j, 0), self.tiles[16*((j+1)//2) + ((i+1)//2) + 1])
+                part = IslandPart(
+                    ursina.Vec3(position_x + i, position_y - j, 0),
+                    self.tiles[16 * ((j + 1) // 2) + ((i + 1) // 2) + 1],
+                )
                 self.entities.append(part)
 
     def destroySelf(self):
@@ -78,8 +78,10 @@ class Island6x6:
         self.entities = []
         for j in range(0, 6):
             for i in range(0, 6):
-                part = IslandPart(ursina.Vec3(
-                    position_x + i, position_y - j, 0), self.tiles[16*((j+1)//2) + ((i+1)//2) + 6])
+                part = IslandPart(
+                    ursina.Vec3(position_x + i, position_y - j, 0),
+                    self.tiles[16 * ((j + 1) // 2) + ((i + 1) // 2) + 6],
+                )
                 self.entities.append(part)
 
     def destroySelf(self):
@@ -102,11 +104,7 @@ class CoinPart(ursina.Entity):
     def __init__(self, index, position):
         coin = os.path.join("Coins", "coin.png")
         super().__init__(
-            position=position,
-            scale=1,
-            model="quad",
-            texture=coin,
-            collider="box"
+            position=position, scale=1, model="quad", texture=coin, collider="box"
         )
         self.index = index
 
@@ -137,13 +135,13 @@ class Plant:
             for i in range(0, 3):
                 px = randint(-20, 20)
                 py = randint(-20, 20)
-                part = PlantPart(ursina.Vec3(px+i, py, 0), self.tiles[70+i])
+                part = PlantPart(ursina.Vec3(px + i, py, 0), self.tiles[70 + i])
                 self.entities.append(part)
         for x in range(0, 10):
             for i in range(0, 2):
                 px = randint(-20, 20)
                 py = randint(-20, 20)
-                part = PlantPart(ursina.Vec3(px+i, py, 0), self.tiles[87+i])
+                part = PlantPart(ursina.Vec3(px + i, py, 0), self.tiles[87 + i])
                 self.entities.append(part)
 
     def destroySelf(self):
@@ -152,19 +150,18 @@ class Plant:
 
 
 class Restrictor(ursina.Entity):
-
     def __init__(self, init_time):
         super().__init__(
-            model=ursina.Circle(resolution=50, mode='line'),
-            scale=(40*2**.5, 40*2**.5),
+            model=ursina.Circle(resolution=50, mode="line"),
+            scale=(40 * 2 ** 0.5, 40 * 2 ** 0.5),
             color=ursina.color.rgb(0, 0, 0),
         )
         self.burn_time = time.time()
         period = time.time() - init_time
-        period_times = period//20
-        current_time = period - period_times*20
+        period_times = period // 20
+        current_time = period - period_times * 20
 
-        self.scale -= period_times*15
+        self.scale -= period_times * 15
         if current_time > 5:
             self.restricting = True
             self.countDown = time.time() + 20 - current_time
