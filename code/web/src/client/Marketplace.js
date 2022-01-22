@@ -9,17 +9,9 @@ import Marketplace from "../artifacts/contracts/Marketplace.sol/Marketplace.json
 import BattleShipNFT from "../artifacts/contracts/BattleShipNFT.sol/BattleShipNFT.json";
 import AztecToken from "../artifacts/contracts/AztecToken/AztecToken.sol/AztecToken.json";
 
-// const tokenAddress = "0xbD046C9F4feBf0891f77d7e1a8Eb01e96AEf84fA"
-// const marketAddress = "0xA31429C01c175e0b2eD633d814984a181521D2F1"
-
-// const nftAddress = '0x54Ab0265b80699390d4E9C26404aEFF473Aa266C'
-// const nftAddress = '0x0E20B533C66D8870618297D0b46558aBF0DAEE20'
 const tokenAddress = process.env.REACT_APP_TOKEN_ADDRESS;
-console.log(tokenAddress);
 const marketAddress = process.env.REACT_APP_MARKET_ADDRESS;
-console.log(marketAddress);
 const nftAddress = process.env.REACT_APP_NFT_ADDRESS;
-console.log(nftAddress);
 
 const style1 = { outline: "none" };
 const style4 = { transform: "translate(0px)" };
@@ -57,16 +49,15 @@ function MarketplacePage(props) {
         count = parseInt(count["_hex"], 16);
         const itemForSale = await marketContract.fetchMarketItems();
 
-        console.log(itemForSale);
         setPageCount(Math.ceil(count / 6));
         setItemCount(count);
 
         const items = await Promise.all(
           itemForSale.map(async (i) => {
-            // const shipUri = await nftContract.shipURI(i)
             const tokenId = parseInt(i.tokenId["_hex"], 16);
             const ship = await nftContract.battleShips(tokenId);
             const type = parseInt(ship.shipType["_hex"], 16);
+
             let item = {
               itemId: parseInt(i.itemId["_hex"], 16),
               tokenId: tokenId,
@@ -82,7 +73,9 @@ function MarketplacePage(props) {
           })
         );
 
-        setMarketItems(items);
+        const res = items.filter((i) => !/^0x0+$/.test(i.seller));
+        console.log(res);
+        setMarketItems(res);
       } catch (err) {
         console.log(err);
       }

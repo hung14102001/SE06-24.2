@@ -12,42 +12,37 @@ async function main() {
   // If this script is run directly using `node` you may want to call compile
   // manually to make sure everything is compiled
   // await hre.run('compile');
-
   // We get the contract to deploy
-
-  // await deployMarketContract();
+  await deployTokenContract();
   await deployNFTContract();
-  // await deployTokenContract();
+  await deployMarketContract();
 }
 
 async function deployTokenContract() {
-  const AztecToken = await hre.ethers.getContractFactory("AztecToken");
+  const AztecToken = await hre.ethers.getContractFactory("StakingAztec");
   const token = await AztecToken.deploy("AztecToken", "AT");
-  
+
   await token.deployed();
-  
+
   console.log("AztecToken deployed to:", token.address);
 }
 
 async function deployMarketContract() {
   const Marketplace = await hre.ethers.getContractFactory("Marketplace");
   const marketplace = await Marketplace.deploy();
-  
+
   await marketplace.deployed();
-  
+
   console.log("MarketPlace deployed to:", marketplace.address);
-  
 }
 async function deployNFTContract() {
   const NFT = await hre.ethers.getContractFactory("BattleShipNFT");
   const nft = await NFT.deploy();
-  
+
   await nft.deployed();
-  
+
   console.log("NFT deployed to:", nft.address);
-
 }
-
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

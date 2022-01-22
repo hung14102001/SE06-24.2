@@ -9,7 +9,9 @@ contract AztecToken is IERC20 {
 
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    uint256 private _totalSupply;
+    uint256 internal _totalSupply;
+    uint256 internal _maxSupply;
+    uint256 internal _maxStakeSupply;
 
     string private _name;
     string private _symbol;
@@ -26,7 +28,8 @@ contract AztecToken is IERC20 {
      * construction.
      */
     constructor(string memory name_, string memory symbol_) {
-        _mint(msg.sender, 1_000_000);
+        _maxSupply = 1_000_000 * 1_000_000_000_000_000_000;
+        _mint(msg.sender, _maxSupply / 5);
         _name = name_;
         _symbol = symbol_;
     }
@@ -60,7 +63,7 @@ contract AztecToken is IERC20 {
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
     function decimals() public view virtual override returns (uint8) {
-        return 0;
+        return 18;
     }
 
     /**
@@ -73,7 +76,13 @@ contract AztecToken is IERC20 {
     /**
      * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address account) public view virtual override returns (uint256) {
+    function balanceOf(address account)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _balances[account];
     }
 
@@ -89,7 +98,12 @@ contract AztecToken is IERC20 {
      * - `recipient` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+    function transfer(address recipient, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         _transfer(msg.sender, recipient, amount);
         return true;
     }
@@ -97,7 +111,13 @@ contract AztecToken is IERC20 {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+    function allowance(address owner, address spender)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _allowances[owner][spender];
     }
 
@@ -108,7 +128,12 @@ contract AztecToken is IERC20 {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+    function approve(address spender, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         _approve(msg.sender, spender, amount);
         return true;
     }
@@ -134,7 +159,10 @@ contract AztecToken is IERC20 {
         _transfer(sender, recipient, amount);
 
         uint256 currentAllowance = _allowances[sender][msg.sender];
-        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
+        require(
+            currentAllowance >= amount,
+            "ERC20: transfer amount exceeds allowance"
+        );
         unchecked {
             _approve(sender, msg.sender, currentAllowance - amount);
         }
@@ -172,12 +200,14 @@ contract AztecToken is IERC20 {
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
-
     }
 
     function mint(uint256 amount) external payable virtual {
-        require(amount > 0 && amount%10 == 0, "require amount is divisible by 10");
-        uint256 price = amount*ethPerAT;
+        require(
+            amount > 0 && amount % 10 == 0,
+            "require amount is divisible by 10"
+        );
+        uint256 price = amount * ethPerAT;
         require(msg.value == price, "require corresponding value");
         _mint(msg.sender, amount);
     }
@@ -193,12 +223,12 @@ contract AztecToken is IERC20 {
      */
     function _mint(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: mint to the zero address");
-
+        require(_totalSupply + amount < _maxSupply, "Extend max supply");
         _totalSupply += amount;
         _balances[account] += amount;
         emit Transfer(address(0), account, amount);
-
     }
+
     function burn(address sender, uint256 amount) external {
         _burn(sender, amount);
     }
@@ -225,16 +255,16 @@ contract AztecToken is IERC20 {
         _totalSupply -= amount;
 
         emit Transfer(account, address(0), amount);
-
     }
+
     function toAsciiString(address x) internal pure returns (string memory) {
         bytes memory s = new bytes(40);
-        for (uint i = 0; i < 20; i++) {
-            bytes1 b = bytes1(uint8(uint(uint160(x)) / (2**(8*(19 - i)))));
+        for (uint256 i = 0; i < 20; i++) {
+            bytes1 b = bytes1(uint8(uint256(uint160(x)) / (2**(8 * (19 - i)))));
             bytes1 hi = bytes1(uint8(b) / 16);
             bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
-            s[2*i] = char(hi);
-            s[2*i+1] = char(lo);            
+            s[2 * i] = char(hi);
+            s[2 * i + 1] = char(lo);
         }
         return string(s);
     }

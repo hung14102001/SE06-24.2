@@ -44,39 +44,17 @@ function Storage(props) {
     if (provider !== undefined) {
       try {
         let userShipIds = await nftContract.getShipsByOwner(props.userAccount);
+        let owner = await nftContract.owner();
 
         setItemCount(userShipIds.length);
 
-        // const userItemsForSale = await marketContract.fetchItemsCreated()
-        // console.log(userItemsForSale)
-
         setPageCount(Math.ceil(userShipIds / 6));
-
-        // const saleItems = await Promise.all(userItemsForSale.map(async i => {
-        //     // const shipUri = await nftContract.shipURI(i)
-        //     const tokenId = parseInt(i.tokenId["_hex"], 16)
-        //     const ship = await nftContract.battleShips(tokenId)
-        //     // const meta = await axios.get(shipUri)
-        //     let item = {
-        //         seller: i.seller,
-        //         price: parseInt(i.price["_hex"], 16),
-        //         tokenId: tokenId,
-        //         level: ship.level,
-        //         type: parseInt(ship.shipType["_hex"], 16),
-        //         hp: parseInt(ship.health["_hex"], 16),
-        //         dmg: parseInt(ship.damage["_hex"], 16),
-        //         //   image: meta.data.image,
-        //     }
-        //     return item
-        // }))
-        // setUserItemsSale(saleItems)
 
         const items = await Promise.all(
           userShipIds.map(async (i) => {
-            // const shipUri = await nftContract.shipURI(i)
             const ship = await nftContract.battleShips(i);
-            // const meta = await axios.get(shipUri)
             const type = parseInt(ship.shipType["_hex"], 16);
+
             let item = {
               tokenId: parseInt(i, 16),
               level: ship.level,
